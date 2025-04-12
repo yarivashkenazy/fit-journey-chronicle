@@ -140,7 +140,7 @@ const ExerciseCard = ({
                       className={`${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
                     />
                   </div>
-                  <div className="col-span-3 flex items-center space-x-1">
+                  <div className="col-span-3 flex items-center">
                     <Button
                       size="icon"
                       variant={set.completed ? "default" : "outline"}
@@ -155,17 +155,17 @@ const ExerciseCard = ({
                     >
                       {set.completed ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </Button>
-                    
-                    {showRestTimer && exercise && (
-                      <div className="flex-1 min-w-[120px]">
-                        <RestTimer 
-                          defaultRestTime={exercise.defaultRestPeriod || 60} 
-                          onComplete={() => onRestTimerComplete(timerId)} 
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
+                
+                {showRestTimer && exercise && (
+                  <div className="ml-9">
+                    <RestTimer 
+                      defaultRestTime={exercise.defaultRestPeriod || 60} 
+                      onComplete={() => onRestTimerComplete(timerId)} 
+                    />
+                  </div>
+                )}
               </div>
             );
           })}

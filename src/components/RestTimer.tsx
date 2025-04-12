@@ -41,7 +41,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
       
       intervalRef.current = setInterval(() => {
         console.log("Interval tick");
-        setSecondsElapsed((prev) => {
+        setSecondsElapsed(prev => {
           const nextValue = prev + 1;
           console.log("Updating seconds elapsed from", prev, "to", nextValue);
           
@@ -70,7 +70,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         intervalRef.current = null;
       }
     };
-  }, [isActive, onComplete, secondsElapsed, defaultRestTime]);
+  }, [isActive, onComplete, defaultRestTime]);
   
   return (
     <div className="flex items-center gap-2 text-xs">

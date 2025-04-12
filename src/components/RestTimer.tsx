@@ -11,35 +11,34 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsLeft, setSecondsLeft] = useState(defaultRestTime);
   const [isActive, setIsActive] = useState(true);
   
-  // Reset seconds when default time changes
+  // Reset timer when the default time changes
   useEffect(() => {
     setSecondsLeft(defaultRestTime);
     setIsActive(true);
   }, [defaultRestTime]);
   
-  // Timer effect
+  // Timer countdown effect
   useEffect(() => {
     let interval: number | undefined;
     
     if (isActive && secondsLeft > 0) {
       interval = window.setInterval(() => {
-        setSecondsLeft((prev) => {
-          const newValue = prev - 1;
-          if (newValue <= 0) {
-            if (interval) clearInterval(interval);
+        setSecondsLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
             setIsActive(false);
-            onComplete();
+            setTimeout(() => onComplete(), 0); // Ensure onComplete runs after state updates
             return 0;
           }
-          return newValue;
+          return prev - 1;
         });
-      }, 1000) as unknown as number;
+      }, 1000);
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, onComplete]);
+  }, [isActive, secondsLeft, onComplete]);
   
   const formatTime = () => {
     const minutes = Math.floor(secondsLeft / 60);
@@ -60,7 +59,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   return (
     <div className="flex items-center gap-1 text-xs">
       <div className="flex items-center">
-        <TimerIcon className="h-3 w-3 text-fitness-secondary mr-1" />
+        <TimerIcon className="h-3 w-3 text-orange-500 mr-1" />
         <span className="font-medium">{formatTime()}</span>
       </div>
       <button 

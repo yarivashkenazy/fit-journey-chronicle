@@ -7,43 +7,41 @@ interface RestTimerProps {
 }
 
 const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
-  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(defaultRestTime);
   const intervalRef = useRef<number | null>(null);
   
-  // Initialize and clean up the timer
   useEffect(() => {
     console.log("Setting up timer with default time:", defaultRestTime);
     
+    // Reset timeRemaining when defaultRestTime changes
+    setTimeRemaining(defaultRestTime);
+    
     // Clear any existing interval first
     if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      window.clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     
-    // Reset state
-    setSecondsElapsed(0);
-    
-    // Start the timer
+    // Start the countdown timer
     intervalRef.current = window.setInterval(() => {
-      setSecondsElapsed((prev) => {
-        const nextValue = prev + 1;
-        console.log("Timer ticking:", nextValue);
+      setTimeRemaining((prevTime) => {
+        const newTime = prevTime - 1;
+        console.log("Timer ticking, time remaining:", newTime);
         
-        // Check if timer is complete
-        if (nextValue >= defaultRestTime) {
+        if (newTime <= 0) {
           console.log("Timer complete, calling onComplete callback");
-          // Clean up the interval
+          // Clean up interval when done
           if (intervalRef.current) {
-            clearInterval(intervalRef.current);
+            window.clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
           
           // Call completion callback
           onComplete();
-          return defaultRestTime;
+          return 0;
         }
         
-        return nextValue;
+        return newTime;
       });
     }, 1000);
     
@@ -51,13 +49,15 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     return () => {
       console.log("Cleaning up timer");
       if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, [defaultRestTime, onComplete]);
   
-  // Display the timer
+  // Calculate progress for display
+  const secondsElapsed = defaultRestTime - timeRemaining;
+  
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-orange-500 font-medium animate-pulse">

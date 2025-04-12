@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Pause, Play, SkipForward } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds
@@ -72,28 +71,19 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const progressPercentage = (secondsLeft / defaultRestTime) * 100;
   
   return (
-    <div className="flex flex-col gap-1 text-xs">
-      <div className="flex items-center gap-2">
-        <button 
-          onClick={handlePauseResume}
-          className="text-xs text-muted-foreground hover:text-foreground"
-        >
-          {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-        </button>
-        <button 
-          onClick={handleSkip}
-          className="text-xs text-muted-foreground hover:text-foreground"
-        >
-          <SkipForward className="h-3 w-3" />
-        </button>
-      </div>
-      
-      {/* Visual countdown indicator using Progress component with no transition */}
-      <Progress 
-        value={progressPercentage} 
-        className="h-1.5 w-full bg-gray-200" 
-        indicatorClassName="bg-orange-500 !transition-none" 
-      />
+    <div className="flex items-center gap-2 text-xs">
+      <button 
+        onClick={handlePauseResume}
+        className="text-xs text-muted-foreground hover:text-foreground"
+      >
+        {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+      </button>
+      <button 
+        onClick={handleSkip}
+        className="text-xs text-muted-foreground hover:text-foreground"
+      >
+        <SkipForward className="h-3 w-3" />
+      </button>
     </div>
   );
 };

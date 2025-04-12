@@ -48,8 +48,8 @@ const ActivityCalendar = () => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Activity Calendar</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 flex justify-center">
-        <div className="w-full max-w-[260px]">
+      <CardContent className="pt-0 h-[calc(100%-60px)] flex flex-col">
+        <div className="w-full max-w-[260px] mx-auto">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -64,21 +64,27 @@ const ActivityCalendar = () => {
             }}
           />
           
-          {selectedDateWorkouts.length > 0 && (
-            <div className="mt-2 space-y-1">
-              <h3 className="text-sm font-medium">Workouts on {selectedDate?.toLocaleDateString()}</h3>
-              <div className="max-h-16 overflow-y-auto">
-                {selectedDateWorkouts.map((log) => (
-                  <div key={log.id} className="p-1.5 bg-muted/30 rounded-md mb-1 text-xs">
-                    <div className="font-medium">{log.workoutName}</div>
-                    <div className="text-muted-foreground">
-                      {log.exerciseLogs.length} exercises, {log.duration} min
+          <div className="mt-2 space-y-1 flex-grow">
+            {selectedDateWorkouts.length > 0 ? (
+              <>
+                <h3 className="text-sm font-medium">Workouts on {selectedDate?.toLocaleDateString()}</h3>
+                <div className="max-h-[120px] overflow-y-auto">
+                  {selectedDateWorkouts.map((log) => (
+                    <div key={log.id} className="p-1.5 bg-muted/30 rounded-md mb-1 text-xs">
+                      <div className="font-medium">{log.workoutName}</div>
+                      <div className="text-muted-foreground">
+                        {log.exerciseLogs.length} exercises, {log.duration} min
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-[120px] text-xs text-muted-foreground">
+                No workouts on this date
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

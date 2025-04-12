@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutStats } from "@/types/workout";
@@ -16,11 +15,11 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
   // Check if there's any exercise progress data
   if (!stats.exerciseProgress || stats.exerciseProgress.length === 0) {
     return (
-      <Card>
-        <CardHeader>
+      <Card className="h-full">
+        <CardHeader className="pb-2">
           <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
         </CardHeader>
-        <CardContent className="h-60 flex items-center justify-center">
+        <CardContent className="h-[calc(100%-60px)] flex items-center justify-center">
           <p className="text-muted-foreground">No exercise data available</p>
         </CardContent>
       </Card>
@@ -54,7 +53,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
 
   if (!exerciseData || exerciseData.data.length < 2) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
           <ExerciseSelector 
@@ -63,7 +62,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
             onSelectExercise={setSelectedExerciseId} 
           />
         </CardHeader>
-        <CardContent className="h-60 flex items-center justify-center">
+        <CardContent className="h-[calc(100%-60px)] flex items-center justify-center">
           <p className="text-muted-foreground">Not enough data to display progress</p>
         </CardContent>
       </Card>
@@ -139,7 +138,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
   const insights = calculateInsights();
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
         <ExerciseSelector 
@@ -148,7 +147,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
           onSelectExercise={setSelectedExerciseId} 
         />
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-[calc(100%-60px)]">
         <div className="h-52 mb-3">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart

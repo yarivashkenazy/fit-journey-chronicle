@@ -100,15 +100,15 @@ const Dashboard = () => {
         )}
       </div>
       
-      {/* Progress Charts - Now all 3 components are in the same row */}
+      {/* Progress Charts - Now all 3 components are in the same row with the same height */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="col-span-1">
+        <div className="col-span-1 h-[420px]">
           <ProgressChart stats={stats} />
         </div>
-        <div className="col-span-1 flex justify-center">
+        <div className="col-span-1 h-[420px]">
           <ActivityCalendar />
         </div>
-        <div className="col-span-1">
+        <div className="col-span-1 h-[420px]">
           <GoalSetting onGoalUpdate={handleRefresh} />
         </div>
       </div>

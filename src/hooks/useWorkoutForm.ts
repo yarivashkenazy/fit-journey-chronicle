@@ -118,6 +118,17 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
       sets: updatedSets
     };
     
+    const lastSetIndex = updatedSets.length - 2;
+    if (lastSetIndex >= 0) {
+      const timerId = `${exerciseIndex}-${lastSetIndex}`;
+      setActiveRestTimers(prev => {
+        const updated = { ...prev };
+        delete updated[timerId];
+        return updated;
+      });
+      console.log(`Removing rest timer when adding new set: ${timerId}`);
+    }
+    
     setExerciseLogs(updatedLogs);
   };
   

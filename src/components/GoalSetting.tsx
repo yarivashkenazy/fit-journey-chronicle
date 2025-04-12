@@ -83,9 +83,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
         </div>
 
         <div className="mt-auto pt-4">
-          <p className="text-xs text-muted-foreground mt-4">
-            Setting a weekly workout goal helps you stay motivated and track your progress over time.
-          </p>
+          {/* Removed the explanatory text that was here */}
         </div>
       </CardContent>
     </Card>

@@ -251,17 +251,64 @@ export const generateSampleWorkoutLogs = (): WorkoutLog[] => {
       const exerciseLogs = workout.exercises.map(exercise => {
         // Generate random sets for this exercise
         const sets = Array(exercise.defaultSets).fill(0).map((_, index) => {
-          // Random weight that increases slightly over time (based on week)
+          // Setup base weight with more variation for main lifts
           let baseWeight = 0;
-          if (exercise.name === "Bench Press") baseWeight = 135;
-          else if (exercise.name === "Deadlift") baseWeight = 185;
-          else if (exercise.name === "Barbell Back Squats") baseWeight = 155;
-          else if (exercise.name.includes("Dumbbell")) baseWeight = 30;
-          else baseWeight = 50;
+          let weeklyVariation = 0;
           
-          // Add progressive overload: weight increases by 2.5-5% every 3-4 weeks
-          const weightProgression = Math.floor(week / 4) * (baseWeight * 0.025);
-          const weight = baseWeight + weightProgression;
+          if (exercise.name === "Bench Press") {
+            baseWeight = 135;
+            // Add some ups and downs to make the graph more interesting
+            if (week < 4) {
+              // First month: slight increase
+              weeklyVariation = week * 2.5;
+            } else if (week < 8) {
+              // Second month: plateau with small variations
+              weeklyVariation = 10 + (Math.sin(week) * 5);
+            } else {
+              // Third month: breakthrough and progress
+              weeklyVariation = 12.5 + ((week - 8) * 5);
+            }
+          } 
+          else if (exercise.name === "Deadlift") {
+            baseWeight = 185;
+            // Create a different pattern for deadlift
+            if (week < 3) {
+              // First weeks: consistency
+              weeklyVariation = 0;
+            } else if (week < 6) {
+              // Next weeks: rapid progress
+              weeklyVariation = (week - 2) * 10;
+            } else if (week < 9) {
+              // Next weeks: slight decrease (fatigue/deload)
+              weeklyVariation = 40 - ((week - 6) * 5);
+            } else {
+              // Final weeks: back to progress
+              weeklyVariation = 25 + ((week - 9) * 7.5);
+            }
+          }
+          else if (exercise.name === "Barbell Back Squats") {
+            baseWeight = 155;
+            // Create a different pattern for squats
+            // Wave loading pattern
+            weeklyVariation = (Math.sin(week * 0.8) * 20) + (week * 2);
+          }
+          else if (exercise.name === "Overhead Press") {
+            baseWeight = 95;
+            // Slower linear progression with small variations
+            weeklyVariation = (week * 1.25) + (Math.random() * 5 - 2.5);
+          }
+          else if (exercise.name.includes("Dumbbell")) {
+            baseWeight = 30;
+            weeklyVariation = week * 0.5;
+          } 
+          else {
+            baseWeight = 50;
+            weeklyVariation = week * 1;
+          }
+          
+          // Add small random variations to weights
+          const randomVariation = Math.floor(Math.random() * 5) - 2;
+          const weight = Math.max(5, Math.round((baseWeight + weeklyVariation + randomVariation) / 5) * 5);
           
           // Random reps within the default range
           const repRange = exercise.defaultReps.split('-');
@@ -296,6 +343,59 @@ export const generateSampleWorkoutLogs = (): WorkoutLog[] => {
       });
     }
   }
+  
+  // Add some extra workouts outside the regular pattern
+  // This creates more data points for compound exercises to make the chart more interesting
+  const addExtraWorkoutsForExercise = (exerciseName: string, workoutName: string, baseWeight: number, count: number) => {
+    const exercise = [
+      ...pushExercises,
+      ...pullExercises, 
+      ...legExercises
+    ].find(ex => ex.name === exerciseName);
+    
+    if (!exercise) return;
+    
+    // Add random workouts over the past 3 months focusing just on this exercise
+    for (let i = 0; i < count; i++) {
+      const daysAgo = Math.floor(Math.random() * 80) + 10; // Between 10 and 90 days ago
+      const logDate = new Date();
+      logDate.setDate(logDate.getDate() - daysAgo);
+      
+      // Determine weight based on how long ago (more recent = higher weight generally)
+      // But add variations to make it realistic
+      const progressFactor = (90 - daysAgo) / 90; // 0 to 1 based on how recent
+      const randomVariation = (Math.random() * 20) - 10; // -10 to +10 lbs random variation
+      const weight = Math.max(baseWeight, Math.round((baseWeight + (progressFactor * 30) + randomVariation) / 5) * 5);
+      
+      const exerciseLog = {
+        id: uuidv4(),
+        exerciseId: exercise.id,
+        exerciseName: exercise.name,
+        sets: Array(exercise.defaultSets).fill(0).map(() => ({
+          id: uuidv4(),
+          weight,
+          reps: Math.floor(Math.random() * 5) + 6, // 6-10 reps
+          completed: true
+        })),
+        date: logDate.toISOString().split('T')[0]
+      };
+      
+      logs.push({
+        id: uuidv4(),
+        workoutId: `extra-${i}`,
+        workoutName: workoutName,
+        date: logDate.toISOString().split('T')[0],
+        duration: Math.floor(Math.random() * 15) + 30, // 30-45 min
+        exerciseLogs: [exerciseLog]
+      });
+    }
+  };
+  
+  // Add extra workouts for the main compound exercises
+  addExtraWorkoutsForExercise("Bench Press", "Push Day", 135, 8);
+  addExtraWorkoutsForExercise("Deadlift", "Pull Day", 185, 5);
+  addExtraWorkoutsForExercise("Barbell Back Squats", "Leg Day", 155, 6);
+  addExtraWorkoutsForExercise("Overhead Press", "Push Day", 95, 7);
   
   return logs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 };

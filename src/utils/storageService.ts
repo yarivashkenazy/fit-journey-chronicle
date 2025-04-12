@@ -1,4 +1,3 @@
-
 import { Workout, WorkoutLog, WorkoutGoal } from "@/types/workout";
 import { activeWorkoutGoal, sampleWorkoutLogs, workoutTemplates } from "@/data/mockData";
 
@@ -25,6 +24,17 @@ export const initializeStorage = () => {
     // Mark as initialized
     localStorage.setItem('fitness-tracker-initialized', 'true');
   }
+};
+
+// Reset storage and reinitialize with fresh data
+export const resetAndReinitializeStorage = () => {
+  localStorage.removeItem(WORKOUTS_KEY);
+  localStorage.removeItem(WORKOUT_LOGS_KEY);
+  localStorage.removeItem(WORKOUT_GOALS_KEY);
+  localStorage.removeItem('fitness-tracker-initialized');
+  
+  // Re-initialize with fresh data
+  initializeStorage();
 };
 
 // Workout Templates CRUD

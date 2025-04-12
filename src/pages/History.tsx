@@ -3,17 +3,31 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Clock, CalendarDays, BarChart3, Dumbbell } from "lucide-react";
+import { ArrowLeft, Clock, CalendarDays, BarChart3, Dumbbell, Trash2 } from "lucide-react";
 import { WorkoutLog } from "@/types/workout";
-import { getWorkoutLogs } from "@/utils/storageService";
+import { getWorkoutLogs, deleteWorkoutLog } from "@/utils/storageService";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const History = () => {
   const navigate = useNavigate();
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
   const [groupedLogs, setGroupedLogs] = useState<Record<string, WorkoutLog[]>>({});
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [logToDelete, setLogToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
   
-  useEffect(() => {
+  const loadWorkoutLogs = () => {
     const logs = getWorkoutLogs();
     setWorkoutLogs(logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     
@@ -36,6 +50,10 @@ const History = () => {
     });
     
     setGroupedLogs(grouped);
+  };
+
+  useEffect(() => {
+    loadWorkoutLogs();
   }, []);
   
   const formatDate = (dateString: string) => {
@@ -45,6 +63,24 @@ const History = () => {
       month: 'short', 
       day: 'numeric'
     });
+  };
+
+  const handleDeleteClick = (logId: string) => {
+    setLogToDelete(logId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (logToDelete) {
+      deleteWorkoutLog(logToDelete);
+      loadWorkoutLogs(); // Reload the logs
+      setDeleteConfirmOpen(false);
+      setLogToDelete(null);
+      toast({
+        title: "Workout deleted",
+        description: "Your workout has been removed from history",
+      });
+    }
   };
   
   return (
@@ -75,9 +111,19 @@ const History = () => {
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{log.workoutName}</CardTitle>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <CalendarDays className="mr-1 h-4 w-4" />
-                          {formatDate(log.date)}
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <CalendarDays className="mr-1 h-4 w-4" />
+                            {formatDate(log.date)}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteClick(log.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardHeader>
@@ -138,6 +184,25 @@ const History = () => {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this workout
+              from your history.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

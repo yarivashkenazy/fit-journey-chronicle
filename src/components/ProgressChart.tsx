@@ -172,6 +172,18 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
           </ResponsiveContainer>
         </div>
         
+        {/* Legend/Index for colors */}
+        <div className="flex items-center justify-center mb-4 gap-6">
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 bg-fitness-primary mr-2 rounded-sm"></span>
+            <span className="text-xs">Weight (lbs)</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 bg-fitness-secondary mr-2 rounded-sm"></span>
+            <span className="text-xs">7-day Average</span>
+          </div>
+        </div>
+        
         {insights && (
           <div className="mt-4 pt-2 border-t border-border">
             <h4 className="text-sm font-medium mb-2">Key Insights</h4>

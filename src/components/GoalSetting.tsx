@@ -40,6 +40,13 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
     }
   };
 
+  const handleFrequencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Parse the input value to a number and ensure it's within the valid range (1-7)
+    const value = parseInt(e.target.value) || 1;
+    const validValue = Math.max(1, Math.min(7, value));
+    setTargetFrequency(validValue);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -56,7 +63,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             min={1}
             max={7}
             value={targetFrequency}
-            onChange={(e) => setTargetFrequency(Math.max(1, Math.min(7, parseInt(e.target.value) || 1)))}
+            onChange={handleFrequencyChange}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Min: 1</span>

@@ -7,7 +7,6 @@ import { HistoryHeader } from "@/components/history/HistoryHeader";
 import { EmptyState } from "@/components/history/EmptyState";
 import { DeleteConfirmDialog } from "@/components/history/DeleteConfirmDialog";
 import { MonthlyWorkoutGroup } from "@/components/history/MonthlyWorkoutGroup";
-import { getMockOrOriginalLogs, isMockDataEnabled } from "@/utils/mockDataService";
 
 const History = () => {
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
@@ -17,16 +16,10 @@ const History = () => {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
   const [multiDeleteConfirmOpen, setMultiDeleteConfirmOpen] = useState(false);
-  const [usingMockData, setUsingMockData] = useState(false);
   const { toast } = useToast();
   
   const loadWorkoutLogs = () => {
-    // Check if mock data is enabled
-    const mockEnabled = isMockDataEnabled();
-    setUsingMockData(mockEnabled);
-    
-    // Get the appropriate logs (mock or actual)
-    const logs = getMockOrOriginalLogs(getWorkoutLogs);
+    const logs = getWorkoutLogs();
     setWorkoutLogs(logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     
     const grouped = logs.reduce((acc, log) => {
@@ -50,19 +43,6 @@ const History = () => {
 
   useEffect(() => {
     loadWorkoutLogs();
-    
-    // Add a listener to refresh when mock data state changes
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'fitness-tracker-mock-data-enabled') {
-        loadWorkoutLogs();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
   }, []);
   
   const formatDate = (dateString: string) => {
@@ -75,14 +55,6 @@ const History = () => {
   };
 
   const handleDeleteClick = (logId: string) => {
-    if (usingMockData) {
-      toast({
-        title: "Mock data mode",
-        description: "Cannot delete workouts while using mock data",
-      });
-      return;
-    }
-    
     setLogToDelete(logId);
     setDeleteConfirmOpen(true);
   };
@@ -101,14 +73,6 @@ const History = () => {
   };
 
   const toggleSelectMode = () => {
-    if (usingMockData) {
-      toast({
-        title: "Mock data mode",
-        description: "Cannot select and delete workouts while using mock data",
-      });
-      return;
-    }
-    
     setSelectMode(!selectMode);
     setSelectedLogs([]);
   };
@@ -158,12 +122,6 @@ const History = () => {
         selectAll={selectAll}
         setMultiDeleteConfirmOpen={setMultiDeleteConfirmOpen}
       />
-      
-      {usingMockData && (
-        <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 p-3 rounded-md mb-4">
-          <p className="text-sm">Using mock data. Return to Dashboard to disable mock data.</p>
-        </div>
-      )}
       
       {Object.keys(groupedLogs).length === 0 ? (
         <EmptyState />

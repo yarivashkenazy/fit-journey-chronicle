@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Database } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import ActivityCalendar from "@/components/ActivityCalendar";
@@ -11,24 +11,18 @@ import { getActiveWorkoutGoal, getWorkoutLogs, getWorkouts, initializeStorage } 
 import { calculateWorkoutStats, calculateWeeklyGoalProgress } from "@/utils/statsUtils";
 import { WorkoutStats } from "@/types/workout";
 import WorkoutButton from "@/components/WorkoutButton";
-import { toast } from "sonner";
-import { toggleMockData, isMockDataEnabled } from "@/utils/mockDataService";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<WorkoutStats | null>(null);
   const [weeklyGoal, setWeeklyGoal] = useState({ current: 0, target: 0, percentage: 0 });
   const [isLoading, setIsLoading] = useState(false);
-  const [mockDataEnabled, setMockDataEnabled] = useState(false);
   
   const loadData = () => {
     setIsLoading(true);
     
     // Initialize local storage if empty
     initializeStorage();
-    
-    // Check mock data state
-    setMockDataEnabled(isMockDataEnabled());
     
     // Load statistics
     const workoutStats = calculateWorkoutStats();
@@ -60,20 +54,6 @@ const Dashboard = () => {
     loadData();
   };
   
-  const handleToggleMockData = () => {
-    const newMockState = toggleMockData(getWorkoutLogs());
-    setMockDataEnabled(newMockState);
-    
-    if (newMockState) {
-      toast.success("Mock data enabled");
-    } else {
-      toast.success("Returned to actual workout data");
-    }
-    
-    // Refresh data to reflect changes
-    loadData();
-  };
-  
   if (!stats) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -91,14 +71,6 @@ const Dashboard = () => {
             percentage={weeklyGoal.percentage}
             compact={true}
           />
-          <Button 
-            variant={mockDataEnabled ? "secondary" : "outline"} 
-            size="sm" 
-            onClick={handleToggleMockData}
-          >
-            <Database className="h-4 w-4 mr-2" />
-            {mockDataEnabled ? "Using Mock Data" : "Mock Data"}
-          </Button>
           <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh

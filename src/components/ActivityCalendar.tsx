@@ -4,21 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutLog } from "@/types/workout";
 import { getWorkoutLogs } from "@/utils/storageService";
 import { Calendar } from "@/components/ui/calendar";
-import { getMockOrOriginalLogs, isMockDataEnabled } from "@/utils/mockDataService";
 
 const ActivityCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [workoutDays, setWorkoutDays] = useState<Date[]>([]);
   const [selectedDateWorkouts, setSelectedDateWorkouts] = useState<WorkoutLog[]>([]);
-  const [mockEnabled, setMockEnabled] = useState(false);
 
   useEffect(() => {
-    // Check if mock data is enabled
-    const mockEnabledState = isMockDataEnabled();
-    setMockEnabled(mockEnabledState);
-    
-    // Get appropriate logs based on mock data state
-    const logs = getMockOrOriginalLogs(getWorkoutLogs);
+    const logs = getWorkoutLogs();
     
     // Get all days with workouts
     const days = logs.map(log => new Date(log.date));
@@ -30,7 +23,7 @@ const ActivityCalendar = () => {
       const matchingLogs = logs.filter(log => log.date === selectedDateStr);
       setSelectedDateWorkouts(matchingLogs);
     }
-  }, [selectedDate, mockEnabled]);
+  }, [selectedDate]);
 
   // Create a function that adds a dot under workout days
   const DayWithDot = ({ date, ...props }: { date: Date; [key: string]: any }) => {

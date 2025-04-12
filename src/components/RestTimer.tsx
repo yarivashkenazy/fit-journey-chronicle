@@ -11,25 +11,19 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const intervalRef = useRef<number | null>(null);
   
   useEffect(() => {
-    console.log("Setting up timer with default time:", defaultRestTime);
-    
-    // Reset timeRemaining when defaultRestTime changes
-    setTimeRemaining(defaultRestTime);
-    
-    // Clear any existing interval first
+    // Clear any existing interval first to prevent multiple timers
     if (intervalRef.current) {
       window.clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     
+    // Reset the timer when defaultRestTime changes
+    setTimeRemaining(defaultRestTime);
+    
     // Start the countdown timer
     intervalRef.current = window.setInterval(() => {
       setTimeRemaining((prevTime) => {
-        const newTime = prevTime - 1;
-        console.log("Timer ticking, time remaining:", newTime);
-        
-        if (newTime <= 0) {
-          console.log("Timer complete, calling onComplete callback");
+        if (prevTime <= 1) {
           // Clean up interval when done
           if (intervalRef.current) {
             window.clearInterval(intervalRef.current);
@@ -41,22 +35,18 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
           return 0;
         }
         
-        return newTime;
+        return prevTime - 1;
       });
     }, 1000);
     
     // Clean up on unmount
     return () => {
-      console.log("Cleaning up timer");
       if (intervalRef.current) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, [defaultRestTime, onComplete]);
-  
-  // Calculate progress for display
-  const secondsElapsed = defaultRestTime - timeRemaining;
   
   return (
     <div className="flex items-center gap-2 text-xs">

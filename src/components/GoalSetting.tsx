@@ -55,8 +55,8 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
         <CardTitle className="text-lg">Set Goals</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div className="space-y-1">
+        <div className="space-y-2">
+          <div>
             <div className="flex justify-between mb-1">
               <span className="text-sm">Weekly workouts</span>
               <Badge variant="outline">{targetFrequency}</Badge>
@@ -69,7 +69,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
               onChange={handleFrequencyChange}
               className="h-8"
             />
-            <div className="flex justify-between text-xs text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>Min: 1</span>
               <span>Max: 7</span>
             </div>

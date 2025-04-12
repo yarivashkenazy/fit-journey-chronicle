@@ -48,32 +48,36 @@ const ActivityCalendar = () => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Activity Calendar</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
-        <Calendar
-          mode="single"
-          selected={selectedDate}
-          onSelect={setSelectedDate}
-          className="rounded-md border"
-          components={{
-            DayContent: (props) => (
-              <DayWithDot date={props.date}>
-                {props.date.getDate()}
-              </DayWithDot>
-            ),
-          }}
-        />
+      <CardContent className="pt-0 px-1 sm:px-3">
+        <div className="overflow-hidden">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="rounded-md border p-0"
+            components={{
+              DayContent: (props) => (
+                <DayWithDot date={props.date}>
+                  {props.date.getDate()}
+                </DayWithDot>
+              ),
+            }}
+          />
+        </div>
         
         {selectedDateWorkouts.length > 0 && (
           <div className="mt-2 space-y-1">
             <h3 className="text-sm font-medium">Workouts on {selectedDate?.toLocaleDateString()}</h3>
-            {selectedDateWorkouts.map((log) => (
-              <div key={log.id} className="p-2 bg-muted/30 rounded-md">
-                <div className="text-sm font-medium">{log.workoutName}</div>
-                <div className="text-xs text-muted-foreground">
-                  {log.exerciseLogs.length} exercises, {log.duration} min
+            <div className="max-h-24 overflow-y-auto">
+              {selectedDateWorkouts.map((log) => (
+                <div key={log.id} className="p-2 bg-muted/30 rounded-md mb-1">
+                  <div className="text-sm font-medium">{log.workoutName}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {log.exerciseLogs.length} exercises, {log.duration} min
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </CardContent>

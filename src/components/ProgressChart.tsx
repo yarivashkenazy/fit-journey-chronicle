@@ -149,7 +149,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         />
       </CardHeader>
       <CardContent>
-        <div className="h-60 mb-4">
+        <div className="h-52 mb-3">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
@@ -187,7 +187,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         </div>
         
         {/* Legend/Index for colors */}
-        <div className="flex items-center justify-center mb-4 gap-6">
+        <div className="flex items-center justify-center mb-3 gap-6">
           <div className="flex items-center">
             <span className="inline-block w-3 h-3 bg-fitness-primary mr-2 rounded-sm"></span>
             <span className="text-xs">Weight (lbs)</span>
@@ -199,8 +199,8 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         </div>
         
         {insights && (
-          <div className="mt-4 pt-2 border-t border-border">
-            <h4 className="text-sm font-medium mb-2">Key Insights</h4>
+          <div className="mt-3 pt-2 border-t border-border">
+            <h4 className="text-sm font-medium mb-1">Key Insights</h4>
             <Table>
               <TableBody>
                 <TableRow>

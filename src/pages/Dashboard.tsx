@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Award, BarChart, Dumbbell, CalendarIcon, TrendingUp, RefreshCw } from "lucide-react";
+import { Activity, Award, Dumbbell, CalendarIcon, RefreshCw } from "lucide-react";
 import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
@@ -72,7 +72,7 @@ const Dashboard = () => {
       </div>
       
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatsCard 
           title="Total Workouts"
           value={stats.totalWorkouts}
@@ -89,12 +89,6 @@ const Dashboard = () => {
           value={`${currentStreak} day${currentStreak !== 1 ? 's' : ''}`}
           icon={<Award className="h-4 w-4" />}
           description={currentStreak > 0 ? "Keep it up!" : "Start a streak today"}
-        />
-        <StatsCard 
-          title="Total Volume"
-          value={`${Math.round(stats.totalWeight / 1000)}k`}
-          icon={<BarChart className="h-4 w-4" />}
-          description="Total weight lifted (lbs)"
         />
       </div>
       

@@ -26,7 +26,8 @@ const WorkoutForm = () => {
     addNewExercise,
     getExerciseById,
     setNotes,
-    restoreDefaultExercises
+    restoreDefaultExercises,
+    reorderExercises
   } = useWorkoutForm(workoutId);
   
   // Drag and drop state
@@ -67,14 +68,13 @@ const WorkoutForm = () => {
         reorderedWorkoutExercises.splice(draggedExerciseIndex, 1);
         reorderedWorkoutExercises.splice(index, 0, draggedWorkoutExercise);
         
-        // Add function to update both logs and workout exercises
         const updatedWorkout = {
           ...workout,
           exercises: reorderedWorkoutExercises
         };
         
-        // Update the workout and logs in a single operation
-        handleReorderExercises(updatedWorkout, reorderedExercises);
+        // Update the workout and logs using the hook function
+        reorderExercises(updatedWorkout, reorderedExercises);
         
         // Update dragged index to new position
         setDraggedExerciseIndex(index);
@@ -85,19 +85,6 @@ const WorkoutForm = () => {
   const handleDragEnd = () => {
     setIsDragging(false);
     setDraggedExerciseIndex(null);
-  };
-  
-  const handleReorderExercises = (updatedWorkout: any, reorderedExercises: any) => {
-    // This is a wrapper for the exercise reordering logic to be added in useWorkoutForm
-    // For now we'll just update the state
-    toast.info("Exercise order updated");
-  };
-  
-  const handleRestoreDefaults = () => {
-    if (restoreDefaultExercises) {
-      restoreDefaultExercises();
-      toast.success("Workout restored to default exercises");
-    }
   };
   
   if (!workout) {
@@ -126,7 +113,7 @@ const WorkoutForm = () => {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={handleRestoreDefaults}
+          onClick={restoreDefaultExercises}
           className="flex items-center gap-1"
         >
           <RotateCcw className="h-4 w-4" />

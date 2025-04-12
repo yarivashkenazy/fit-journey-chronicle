@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { getActiveWorkoutGoal, saveWorkoutGoal } from "@/utils/storageService";
 import { WorkoutGoal } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
@@ -54,17 +54,16 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             <span className="text-sm">Weekly target workouts</span>
             <Badge variant="outline">{targetFrequency}</Badge>
           </div>
-          <Slider
-            value={[targetFrequency]}
+          <Input
+            type="number"
             min={1}
             max={7}
-            step={1}
-            onValueChange={(value) => setTargetFrequency(value[0])}
+            value={targetFrequency}
+            onChange={(e) => setTargetFrequency(Math.max(1, Math.min(7, parseInt(e.target.value) || 1)))}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>1</span>
-            <span>4</span>
-            <span>7</span>
+            <span>Min: 1</span>
+            <span>Max: 7</span>
           </div>
         </div>
         
@@ -86,17 +85,16 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
                 <span className="text-sm">Target streak (days)</span>
                 <Badge variant="outline">{targetStreak}</Badge>
               </div>
-              <Slider
-                value={[targetStreak]}
-                min={3}
+              <Input
+                type="number"
+                min={1}
                 max={30}
-                step={1}
-                onValueChange={(value) => setTargetStreak(value[0])}
+                value={targetStreak}
+                onChange={(e) => setTargetStreak(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>3</span>
-                <span>15</span>
-                <span>30</span>
+                <span>Min: 1</span>
+                <span>Max: 30</span>
               </div>
             </>
           )}

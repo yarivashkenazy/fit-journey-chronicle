@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -211,7 +212,7 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     return workout?.exercises.find(e => e.id === id);
   };
   
-  // New function to restore default exercises
+  // Function to restore default exercises
   const restoreDefaultExercises = () => {
     if (!originalWorkout || !workout) return;
     
@@ -239,13 +240,18 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     });
     
     setExerciseLogs(initialLogs);
+    toast.success("Workout restored to default exercises");
   };
   
-  // New function to handle exercise reordering
+  // Function to handle exercise reordering - fixed implementation
   const reorderExercises = (updatedWorkout: Workout, reorderedExercises: ExerciseLog[]) => {
+    // Update both the workout and exercise logs
     setWorkout(updatedWorkout);
     setExerciseLogs(reorderedExercises);
+    
+    // Save the updated workout to persist the changes
     saveWorkout(updatedWorkout);
+    toast.success("Exercise order updated");
   };
   
   return {

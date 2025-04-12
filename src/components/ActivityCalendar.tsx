@@ -25,17 +25,22 @@ const ActivityCalendar = () => {
     }
   }, [selectedDate]);
 
-  // Create a function to modify the day styles
-  const modifyDay = (date: Date) => {
+  // Create a function that adds a dot under workout days
+  const DayWithDot = ({ date, ...props }: { date: Date; [key: string]: any }) => {
     const isWorkoutDay = workoutDays.some(d => 
       d.getDate() === date.getDate() && 
       d.getMonth() === date.getMonth() && 
       d.getFullYear() === date.getFullYear()
     );
     
-    return isWorkoutDay ? 
-      "bg-fitness-primary/20 text-fitness-primary font-medium rounded-full" : 
-      undefined;
+    return (
+      <div className="relative flex flex-col items-center">
+        {props.children}
+        {isWorkoutDay && (
+          <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-fitness-primary" />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -49,15 +54,11 @@ const ActivityCalendar = () => {
           selected={selectedDate}
           onSelect={setSelectedDate}
           className="rounded-md border"
-          modifiers={{ workout: workoutDays }}
-          modifiersClassNames={{
-            workout: "bg-fitness-primary/20"
-          }}
           components={{
             DayContent: (props) => (
-              <div className={modifyDay(props.date)}>
+              <DayWithDot date={props.date}>
                 {props.date.getDate()}
-              </div>
+              </DayWithDot>
             ),
           }}
         />

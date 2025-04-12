@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -71,16 +70,16 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     
     setExerciseLogs(updatedLogs);
     
-    // Start or stop rest timer based on completion status
     if (field === 'completed' && value === true && workout) {
-      // Immediately start the rest timer when a set is marked as completed
       const timerId = `${exerciseIndex}-${setIndex}`;
-      setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
-      console.log(`Starting rest timer for ${timerId}`);
+      
+      if (setIndex < updatedLogs[exerciseIndex].sets.length - 1 || updatedSets.length === 1) {
+        setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
+        console.log(`Starting rest timer for ${timerId}`);
+      }
     }
     
     if (field === 'completed' && value === false) {
-      // Remove rest timer when a set is marked as not completed
       const timerId = `${exerciseIndex}-${setIndex}`;
       setActiveRestTimers(prev => {
         const updated = { ...prev };

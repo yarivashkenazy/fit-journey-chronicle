@@ -51,7 +51,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-orange-500 font-medium animate-pulse">
-        {timeRemaining}s remaining
+        {timeRemaining} seconds remaining
       </span>
     </div>
   );

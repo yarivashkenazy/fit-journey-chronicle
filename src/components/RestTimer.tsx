@@ -13,12 +13,22 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   
   // Reset timer when the default time changes
   useEffect(() => {
+    // Clear any existing interval when defaultRestTime changes
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
     setSecondsElapsed(0);
     setIsActive(true); // Always start active when timer is reset
+    
+    console.log("RestTimer reset with default time:", defaultRestTime);
   }, [defaultRestTime]);
   
   // Timer count up effect
   useEffect(() => {
+    console.log("Timer effect running, isActive:", isActive, "secondsElapsed:", secondsElapsed);
+    
     // Clean up existing interval first
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -27,10 +37,16 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     
     // Only start a new interval if the timer is active and we haven't reached the end
     if (isActive && secondsElapsed < defaultRestTime) {
+      console.log("Starting interval");
+      
       intervalRef.current = setInterval(() => {
+        console.log("Interval tick");
         setSecondsElapsed((prev) => {
           const nextValue = prev + 1;
+          console.log("Updating seconds elapsed from", prev, "to", nextValue);
+          
           if (nextValue >= defaultRestTime) {
+            console.log("Timer completed");
             // Clear interval when reaching the end
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
@@ -48,6 +64,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     
     // Clean up on unmount or when dependencies change
     return () => {
+      console.log("Cleaning up interval");
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;

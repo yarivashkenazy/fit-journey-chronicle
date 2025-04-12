@@ -23,6 +23,9 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     // Start the countdown timer
     intervalRef.current = window.setInterval(() => {
       setTimeRemaining((prevTime) => {
+        // Log the current time for debugging
+        console.log(`Current timer value: ${prevTime}`);
+        
         if (prevTime <= 1) {
           // Clean up interval when done
           if (intervalRef.current) {
@@ -51,7 +54,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-orange-500 font-medium animate-pulse">
-        {timeRemaining} seconds remaining
+        {timeRemaining}s remaining
       </span>
     </div>
   );

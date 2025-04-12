@@ -11,25 +11,35 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsLeft, setSecondsLeft] = useState(defaultRestTime);
   const [isActive, setIsActive] = useState(true);
   
-  // Calculate progress percentage
-  const progress = ((defaultRestTime - secondsLeft) / defaultRestTime) * 100;
+  // Reset seconds when default time changes
+  useEffect(() => {
+    setSecondsLeft(defaultRestTime);
+    setIsActive(true);
+  }, [defaultRestTime]);
   
+  // Timer effect
   useEffect(() => {
     let interval: number | undefined;
     
     if (isActive && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft((prev) => prev - 1);
+      interval = window.setInterval(() => {
+        setSecondsLeft((prev) => {
+          const newValue = prev - 1;
+          if (newValue <= 0) {
+            if (interval) clearInterval(interval);
+            setIsActive(false);
+            onComplete();
+            return 0;
+          }
+          return newValue;
+        });
       }, 1000) as unknown as number;
-    } else if (secondsLeft === 0) {
-      setIsActive(false);
-      onComplete();
     }
     
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, secondsLeft, onComplete]);
+  }, [isActive, onComplete]);
   
   const formatTime = () => {
     const minutes = Math.floor(secondsLeft / 60);

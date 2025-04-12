@@ -118,7 +118,7 @@ const ExerciseCard = ({
             
             return (
               <div key={set.id} className="space-y-2">
-                <div className={`grid grid-cols-12 gap-2 items-center rounded-md p-1 ${showRestTimer ? 'bg-orange-100 border border-orange-200' : ''}`}>
+                <div className="grid grid-cols-12 gap-2 items-center rounded-md p-1">
                   <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
                   <div className="col-span-4">
                     <div className="relative">
@@ -126,7 +126,7 @@ const ExerciseCard = ({
                         type="number"
                         value={set.weight || ""}
                         onChange={(e) => onSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
-                        className={`pl-2 pr-8 ${set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}`}
+                        className={`pl-2 pr-8 ${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         kg
@@ -138,7 +138,7 @@ const ExerciseCard = ({
                       type="number"
                       value={set.reps || ""}
                       onChange={(e) => onSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
-                      className={set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}
+                      className={`${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
                     />
                   </div>
                   <div className="col-span-3 flex items-center space-x-1">

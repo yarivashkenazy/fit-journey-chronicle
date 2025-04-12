@@ -19,20 +19,24 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   
   // Timer countdown effect
   useEffect(() => {
-    let interval: number | undefined;
+    let interval: NodeJS.Timeout | undefined;
     
     if (isActive && secondsLeft > 0) {
-      interval = window.setInterval(() => {
-        setSecondsLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
+      interval = setInterval(() => {
+        setSecondsLeft(prevSeconds => {
+          if (prevSeconds <= 1) {
+            if (interval) clearInterval(interval);
             setIsActive(false);
-            setTimeout(() => onComplete(), 0); // Ensure onComplete runs after state updates
+            onComplete();
             return 0;
           }
-          return prev - 1;
+          return prevSeconds - 1;
         });
       }, 1000);
+    } else if (secondsLeft === 0 && isActive) {
+      // Ensure we call onComplete if seconds reach 0
+      setIsActive(false);
+      onComplete();
     }
     
     return () => {

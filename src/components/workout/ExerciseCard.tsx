@@ -161,7 +161,7 @@ const ExerciseCard = ({
                     {/* Inline rest timer */}
                     {showRestTimer && exercise && (
                       <RestTimer 
-                        defaultRestTime={exercise.defaultRestPeriod} 
+                        defaultRestTime={exercise.defaultRestPeriod || 60} 
                         onComplete={() => onRestTimerComplete(timerId)} 
                       />
                     )}

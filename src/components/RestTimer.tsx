@@ -23,36 +23,36 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     
     // Clear any existing timer
     if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     
     // Create a new timer that updates every second
-    intervalRef.current = window.setInterval(() => {
-      setSecondsLeft(prevSeconds => {
-        if (prevSeconds <= 1) {
+    intervalRef.current = setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
           // Clear the interval when we reach 0
           if (intervalRef.current) {
-            window.clearInterval(intervalRef.current);
+            clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
           
           // Call onComplete in the next tick
-          setTimeout(() => onComplete(), 0);
+          setTimeout(onComplete, 0);
           return 0;
         }
-        
-        return prevSeconds - 1;
+        return prev - 1;
       });
-    }, 1000); // Update exactly every second
+    }, 1000);
     
     // Clean up interval on component unmount or when timer becomes inactive
     return () => {
       if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
+        clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [isActive, onComplete]);
+  }, [isActive, onComplete, secondsLeft]);
   
   const formatTime = () => {
     const minutes = Math.floor(secondsLeft / 60);

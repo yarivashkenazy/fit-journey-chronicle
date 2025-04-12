@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Timer as TimerIcon, Pause, Play, SkipForward } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds
@@ -25,25 +26,31 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
       // Using window.setInterval to ensure it works correctly in the browser
       intervalId = window.setInterval(() => {
         setSecondsLeft((prevSeconds) => {
-          if (prevSeconds <= 1) {
+          const newValue = prevSeconds - 1;
+          console.log(`Timer countdown: ${newValue} seconds left`);
+          
+          if (newValue <= 0) {
             // Clear the interval and call onComplete when we reach 0
             window.clearInterval(intervalId);
             // Call onComplete in the next tick to ensure state updates first
             setTimeout(() => onComplete(), 0);
             return 0;
           }
-          return prevSeconds - 1;
+          return newValue;
         });
-      }, 1000);
+      }, 1000); // Update every 1000ms (1 second) exactly
+      
+      console.log(`Timer started with interval ID: ${intervalId}`);
     }
     
     // Clean up interval on component unmount or when timer becomes inactive
     return () => {
       if (intervalId !== undefined) {
+        console.log(`Clearing interval: ${intervalId}`);
         window.clearInterval(intervalId);
       }
     };
-  }, [isActive, secondsLeft, onComplete]);
+  }, [isActive, onComplete, secondsLeft]);
   
   const formatTime = () => {
     const minutes = Math.floor(secondsLeft / 60);
@@ -69,7 +76,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
       <div className="flex items-center gap-2">
         <div className="flex items-center">
           <TimerIcon className="h-3 w-3 text-orange-500 mr-1" />
-          <span className="font-medium">{formatTime()}</span>
+          <span className="font-medium text-orange-600">{formatTime()}</span>
         </div>
         <button 
           onClick={handlePauseResume}
@@ -85,13 +92,12 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         </button>
       </div>
       
-      {/* Visual countdown indicator */}
-      <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-        <div 
-          className="h-full bg-orange-500 transition-all duration-1000 ease-linear"
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
-      </div>
+      {/* Visual countdown indicator using Progress component */}
+      <Progress 
+        value={progressPercentage} 
+        className="h-1.5 w-full bg-gray-200"
+        indicatorClassName="bg-orange-500 transition-all ease-linear"
+      />
     </div>
   );
 };

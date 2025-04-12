@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Timer as TimerIcon, Pause, Play, SkipForward } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -68,7 +68,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     setIsActive(!isActive);
   };
   
-  // Calculate progress percentage for visual indicator - invert it so it decreases from 100 to 0
+  // Calculate progress percentage for visual indicator
   const progressPercentage = (secondsLeft / defaultRestTime) * 100;
   
   return (
@@ -95,8 +95,8 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
       {/* Visual countdown indicator using Progress component with no transition */}
       <Progress 
         value={progressPercentage} 
-        className="h-1.5 w-full bg-gray-200"
-        indicatorClassName="bg-orange-500 transition-none"
+        className="h-1.5 w-full bg-gray-200" 
+        indicatorClassName="bg-orange-500 !transition-none" 
       />
     </div>
   );

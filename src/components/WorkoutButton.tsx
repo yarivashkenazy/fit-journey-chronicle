@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Workout } from "@/types/workout";
-import { Dumbbell, Weight, Running, Barbell, Activity } from "lucide-react";
+import { Dumbbell, Weight, ActivitySquare, Footprints, Activity } from "lucide-react";
 
 interface WorkoutButtonProps {
   workout: Workout;
@@ -18,9 +18,9 @@ const WorkoutButton: React.FC<WorkoutButtonProps> = ({ workout, onClick }) => {
       case 'pull':
         return <Weight className="h-6 w-6 mb-2" />;
       case 'legs':
-        return <Running className="h-6 w-6 mb-2" />;
+        return <Footprints className="h-6 w-6 mb-2" />;
       case 'full':
-        return <Barbell className="h-6 w-6 mb-2" />;
+        return <ActivitySquare className="h-6 w-6 mb-2" />;
       case 'cardio':
         return <Activity className="h-6 w-6 mb-2" />;
       default:

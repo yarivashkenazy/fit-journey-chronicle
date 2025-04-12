@@ -1,7 +1,7 @@
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, Timer, RotateCcw, Dumbbell, Activity, Running, Weight, Barbell } from "lucide-react";
+import { ArrowLeft, Timer, RotateCcw, Dumbbell, Activity, Footprints, Weight, ActivitySquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorkoutForm } from "@/hooks/useWorkoutForm";
 import ExerciseCard from "./workout/ExerciseCard";
@@ -42,9 +42,9 @@ const WorkoutForm = () => {
       case 'pull':
         return <Weight className="h-6 w-6 text-fitness-primary mr-2" />;
       case 'legs':
-        return <Running className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <Footprints className="h-6 w-6 text-fitness-primary mr-2" />;
       case 'full':
-        return <Barbell className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <ActivitySquare className="h-6 w-6 text-fitness-primary mr-2" />;
       case 'cardio':
         return <Activity className="h-6 w-6 text-fitness-primary mr-2" />;
       default:

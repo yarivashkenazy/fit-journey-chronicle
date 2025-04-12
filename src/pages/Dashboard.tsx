@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import ActivityCalendar from "@/components/ActivityCalendar";
@@ -105,12 +105,14 @@ const Dashboard = () => {
         <div className="space-y-6">
           <ProgressChart stats={stats} />
         </div>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="h-full">
-              <ActivityCalendar />
+        <div className="flex flex-col space-y-6 md:space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ActivityCalendar />
+              </div>
             </div>
-            <div className="h-full">
+            <div className="w-full">
               <GoalSetting onGoalUpdate={handleRefresh} />
             </div>
           </div>

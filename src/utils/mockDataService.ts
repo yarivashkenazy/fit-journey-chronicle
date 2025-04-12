@@ -11,6 +11,14 @@ const getRandomRecentDate = (): string => {
   return randomDate.toISOString().split('T')[0];
 };
 
+// Generate a date for a specific day in the past (for creating meaningful progression)
+const getSpecificPastDate = (daysAgo: number): string => {
+  const today = new Date();
+  const pastDate = new Date(today);
+  pastDate.setDate(today.getDate() - daysAgo);
+  return pastDate.toISOString().split('T')[0];
+};
+
 // Generate random notes for workouts
 const getRandomNotes = (): string => {
   const notes = [
@@ -29,6 +37,53 @@ const getRandomNotes = (): string => {
   return notes[Math.floor(Math.random() * notes.length)];
 };
 
+// Generate tracked exercise with progressive overload pattern
+const generateProgressiveExercise = (
+  exerciseName: string, 
+  date: string,
+  baseWeight: number, 
+  progression: number
+): {
+  id: string;
+  exerciseId: string;
+  exerciseName: string;
+  date: string;
+  sets: {
+    id: string;
+    weight: number;
+    reps: number;
+    completed: boolean;
+  }[];
+} => {
+  const setCount = Math.floor(Math.random() * 2) + 3; // 3-4 sets
+  const exerciseId = exerciseName.replace(/\s+/g, '').toLowerCase();
+  
+  return {
+    id: uuidv4(),
+    exerciseId: exerciseId,
+    exerciseName: exerciseName,
+    date: date,
+    sets: Array(setCount).fill(0).map((_, index) => {
+      // Progressive overload within a workout (either flat, ascending, or descending)
+      const pattern = Math.floor(Math.random() * 3); // 0: flat, 1: ascending, 2: descending
+      let weight = baseWeight + progression;
+      
+      if (pattern === 1) { // ascending
+        weight = weight - (setCount - index - 1) * 2.5;
+      } else if (pattern === 2) { // descending
+        weight = weight - index * 2.5;
+      }
+      
+      return {
+        id: uuidv4(),
+        weight: Math.round(weight * 2) / 2, // round to nearest 0.5
+        reps: Math.floor(Math.random() * 5) + 8, // 8-12 reps
+        completed: Math.random() > 0.1 // 90% chance of completion
+      };
+    })
+  };
+};
+
 // Generate mock workout logs
 export const generateMockWorkoutLogs = (): WorkoutLog[] => {
   const workoutTypes = [
@@ -39,10 +94,108 @@ export const generateMockWorkoutLogs = (): WorkoutLog[] => {
   
   const mockLogs: WorkoutLog[] = [];
   
-  // Generate 15-25 random workout logs
-  const logsCount = Math.floor(Math.random() * 11) + 15; // 15-25 logs
+  // Create consistent progression data for tracked exercises
+  const trackedExercises = {
+    "Bench Press": {
+      baseWeight: 135,
+      progression: 2.5,
+      workoutId: "default-push-workout"
+    },
+    "Deadlift": {
+      baseWeight: 225,
+      progression: 5,
+      workoutId: "default-pull-workout"
+    },
+    "Squats": {
+      baseWeight: 185,
+      progression: 5,
+      workoutId: "default-legs-workout"
+    },
+    "Overhead Press": {
+      baseWeight: 95,
+      progression: 2.5,
+      workoutId: "default-push-workout"
+    }
+  };
   
-  for (let i = 0; i < logsCount; i++) {
+  // Generate 5-7 data points for each tracked exercise over the last 28 days
+  // This ensures the progress chart has good data
+  Object.entries(trackedExercises).forEach(([exerciseName, config]) => {
+    const dataPoints = Math.floor(Math.random() * 3) + 5; // 5-7 data points
+    const pointSpacing = Math.floor(28 / dataPoints);
+    
+    for (let i = 0; i < dataPoints; i++) {
+      const daysAgo = i * pointSpacing;
+      const date = getSpecificPastDate(daysAgo);
+      const progression = config.progression * (dataPoints - i - 1);
+      
+      const exerciseLog = generateProgressiveExercise(
+        exerciseName,
+        date,
+        config.baseWeight,
+        progression
+      );
+      
+      // Create a workout log for this exercise
+      const mockLog: WorkoutLog = {
+        id: uuidv4(),
+        workoutId: config.workoutId,
+        workoutName: workoutTypes.find(w => w.id === config.workoutId)?.name || "Workout",
+        date: date,
+        duration: Math.floor(Math.random() * 30) + 30, // 30-60 minutes
+        notes: getRandomNotes(),
+        exerciseLogs: [exerciseLog]
+      };
+      
+      // Add 2-3 additional random exercises to this workout
+      const additionalExercises = Math.floor(Math.random() * 2) + 2;
+      for (let j = 0; j < additionalExercises; j++) {
+        const exerciseNames = [
+          "Lateral Raises", "Face Pulls", "Romanian Deadlifts",
+          "Dips", "Incline Bench Press", "Calf Raises",
+          "Hammer Curls", "Skull Crushers", "Leg Extensions",
+          "Pull-ups", "Barbell Rows", "Lunges", 
+          "Bicep Curls", "Tricep Pushdowns", "Leg Press"
+        ];
+        
+        const randomExerciseName = exerciseNames[Math.floor(Math.random() * exerciseNames.length)];
+        const setCount = Math.floor(Math.random() * 2) + 3; // 3-4 sets
+        const baseWeight = Math.floor(Math.random() * 40) + 20; // 20-60 kg
+        
+        mockLog.exerciseLogs.push({
+          id: uuidv4(),
+          exerciseId: uuidv4(),
+          exerciseName: randomExerciseName,
+          date: date,
+          sets: Array(setCount).fill(0).map((_, index) => {
+            // Progressive overload pattern - either ascending, descending, or flat
+            const pattern = Math.floor(Math.random() * 3); // 0: flat, 1: ascending, 2: descending
+            let weight = baseWeight;
+            
+            if (pattern === 1) { // ascending
+              weight = baseWeight - (setCount - index - 1) * 2.5;
+            } else if (pattern === 2) { // descending
+              weight = baseWeight - index * 2.5;
+            }
+            
+            return {
+              id: uuidv4(),
+              weight: Math.round(weight * 2) / 2, // round to nearest 0.5
+              reps: Math.floor(Math.random() * 5) + 8, // 8-12 reps
+              completed: Math.random() > 0.1 // 90% chance of completion
+            };
+          })
+        });
+      }
+      
+      mockLogs.push(mockLog);
+    }
+  });
+  
+  // Generate additional random workout logs to add variety
+  const additionalLogs = Math.floor(Math.random() * 6) + 10; // 10-15 additional logs
+  
+  for (let i = 0; i < additionalLogs; i++) {
     const randomWorkout = workoutTypes[Math.floor(Math.random() * workoutTypes.length)];
     const exerciseCount = Math.floor(Math.random() * 3) + 3; // 3-5 exercises
     
@@ -75,7 +228,7 @@ export const generateMockWorkoutLogs = (): WorkoutLog[] => {
       
       mockLog.exerciseLogs.push({
         id: uuidv4(),
-        exerciseId: uuidv4(),
+        exerciseId: exerciseName.replace(/\s+/g, '').toLowerCase(),
         exerciseName: exerciseName,
         date: mockLog.date,
         sets: Array(setCount).fill(0).map((_, index) => {

@@ -62,6 +62,7 @@ export const getWeeklyWorkoutCounts = (logs: WorkoutLog[], weeks: number = 10): 
 // Get progress data for exercises
 export const getExerciseProgress = (logs: WorkoutLog[]) => {
   const exerciseMap = new Map<string, {
+    exerciseId: string;
     exerciseName: string;
     data: { date: string; maxWeight: number }[];
   }>();
@@ -70,7 +71,7 @@ export const getExerciseProgress = (logs: WorkoutLog[]) => {
   const trackExercises = [
     "Bench Press",
     "Deadlift",
-    "Barbell Back Squats",
+    "Squats",
     "Overhead Press"
   ];
   
@@ -80,18 +81,33 @@ export const getExerciseProgress = (logs: WorkoutLog[]) => {
         // Find the maximum weight for this exercise in this workout
         const maxWeight = Math.max(...exercise.sets.map(set => set.weight));
         
-        if (!exerciseMap.has(exercise.exerciseId)) {
-          exerciseMap.set(exercise.exerciseId, {
+        const exerciseId = exercise.exerciseId.startsWith('bench') ? 'benchpress' : 
+                          exercise.exerciseId.startsWith('dead') ? 'deadlift' : 
+                          exercise.exerciseId.startsWith('squat') ? 'squats' : 
+                          exercise.exerciseId.startsWith('over') ? 'overheadpress' : 
+                          exercise.exerciseId;
+        
+        const mapKey = exercise.exerciseName.toLowerCase().replace(/\s+/g, '');
+        
+        if (!exerciseMap.has(mapKey)) {
+          exerciseMap.set(mapKey, {
+            exerciseId: exerciseId,
             exerciseName: exercise.exerciseName,
             data: []
           });
         }
         
-        const existingData = exerciseMap.get(exercise.exerciseId)!;
-        existingData.data.push({
-          date: log.date,
-          maxWeight
-        });
+        const existingData = exerciseMap.get(mapKey)!;
+        
+        // Check if we already have an entry for this date
+        const dateExists = existingData.data.some(entry => entry.date === log.date);
+        
+        if (!dateExists) {
+          existingData.data.push({
+            date: log.date,
+            maxWeight
+          });
+        }
       }
     });
   });
@@ -99,7 +115,7 @@ export const getExerciseProgress = (logs: WorkoutLog[]) => {
   // Sort data by date for each exercise
   const result = Array.from(exerciseMap.values()).map(exercise => {
     return {
-      exerciseId: trackExercises.find(name => name === exercise.exerciseName) || "",
+      exerciseId: exercise.exerciseId,
       exerciseName: exercise.exerciseName,
       data: exercise.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     };

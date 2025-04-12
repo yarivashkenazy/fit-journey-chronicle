@@ -13,6 +13,20 @@ interface ProgressChartProps {
 }
 
 const ProgressChart = ({ stats }: ProgressChartProps) => {
+  // Check if there's any exercise progress data
+  if (!stats.exerciseProgress || stats.exerciseProgress.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
+        </CardHeader>
+        <CardContent className="h-60 flex items-center justify-center">
+          <p className="text-muted-foreground">No exercise data available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   // Find Bench Press exercise index if it exists
   const benchPressIndex = stats.exerciseProgress.findIndex(ex => ex.exerciseName === "Bench Press");
   

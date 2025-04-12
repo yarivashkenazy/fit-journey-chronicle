@@ -1,46 +1,46 @@
+
 import { Workout, WorkoutLog, WorkoutGoal } from "@/types/workout";
-import { activeWorkoutGoal, sampleWorkoutLogs, workoutTemplates } from "@/data/mockData";
 
 // Storage keys
 const WORKOUTS_KEY = 'fitness-tracker-workouts';
 const WORKOUT_LOGS_KEY = 'fitness-tracker-logs';
 const WORKOUT_GOALS_KEY = 'fitness-tracker-goals';
 
-// Initialize local storage with default data if empty
+// Initialize local storage with empty data if empty
 export const initializeStorage = () => {
   // Check if storage has been initialized
   const initialized = localStorage.getItem('fitness-tracker-initialized');
   
   if (!initialized) {
-    // Set workouts
-    localStorage.setItem(WORKOUTS_KEY, JSON.stringify(workoutTemplates));
+    // Set empty workouts
+    localStorage.setItem(WORKOUTS_KEY, JSON.stringify([]));
     
-    // Set sample workout logs
-    localStorage.setItem(WORKOUT_LOGS_KEY, JSON.stringify(sampleWorkoutLogs));
+    // Set empty workout logs
+    localStorage.setItem(WORKOUT_LOGS_KEY, JSON.stringify([]));
     
-    // Set workout goal
-    localStorage.setItem(WORKOUT_GOALS_KEY, JSON.stringify([activeWorkoutGoal]));
+    // Set empty workout goal
+    localStorage.setItem(WORKOUT_GOALS_KEY, JSON.stringify([]));
     
     // Mark as initialized
     localStorage.setItem('fitness-tracker-initialized', 'true');
   }
 };
 
-// Reset storage and reinitialize with fresh data
+// Reset storage and reinitialize with empty data
 export const resetAndReinitializeStorage = () => {
   localStorage.removeItem(WORKOUTS_KEY);
   localStorage.removeItem(WORKOUT_LOGS_KEY);
   localStorage.removeItem(WORKOUT_GOALS_KEY);
   localStorage.removeItem('fitness-tracker-initialized');
   
-  // Re-initialize with fresh data
+  // Re-initialize with empty data
   initializeStorage();
 };
 
 // Workout Templates CRUD
 export const getWorkouts = (): Workout[] => {
   const workouts = localStorage.getItem(WORKOUTS_KEY);
-  return workouts ? JSON.parse(workouts) : workoutTemplates;
+  return workouts ? JSON.parse(workouts) : [];
 };
 
 export const getWorkout = (id: string): Workout | undefined => {
@@ -104,7 +104,7 @@ export const deleteWorkoutLog = (id: string): void => {
 // Workout Goals CRUD
 export const getWorkoutGoals = (): WorkoutGoal[] => {
   const goals = localStorage.getItem(WORKOUT_GOALS_KEY);
-  return goals ? JSON.parse(goals) : [activeWorkoutGoal];
+  return goals ? JSON.parse(goals) : [];
 };
 
 export const getActiveWorkoutGoal = (): WorkoutGoal | undefined => {

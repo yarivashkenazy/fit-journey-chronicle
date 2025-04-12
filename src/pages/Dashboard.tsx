@@ -17,13 +17,13 @@ import { toast } from "sonner";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<WorkoutStats | null>(null);
-  const [weeklyGoal, setWeeklyGoal] = useState({ current: 0, target: 3, percentage: 0 });
+  const [weeklyGoal, setWeeklyGoal] = useState({ current: 0, target: 0, percentage: 0 });
   const [isLoading, setIsLoading] = useState(false);
   
   const loadData = () => {
     setIsLoading(true);
     
-    // Initialize local storage with sample data if empty
+    // Initialize local storage if empty
     initializeStorage();
     
     // Load statistics
@@ -37,6 +37,8 @@ const Dashboard = () => {
     if (activeGoal) {
       const progress = calculateWeeklyGoalProgress(logs, activeGoal.frequency);
       setWeeklyGoal(progress);
+    } else {
+      setWeeklyGoal({ current: 0, target: 0, percentage: 0 });
     }
     
     setIsLoading(false);
@@ -57,13 +59,15 @@ const Dashboard = () => {
   const handleResetData = () => {
     setIsLoading(true);
     resetAndReinitializeStorage();
-    toast.success("Data has been reset with new random workout data");
+    toast.success("Data has been reset");
     loadData();
   };
   
   if (!stats) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
+  
+  const workouts = getWorkouts();
   
   return (
     <div className="container py-6 space-y-6">
@@ -89,24 +93,31 @@ const Dashboard = () => {
         />
         <StatsCard 
           title="This Week"
-          value={`${weeklyGoal.current}/${weeklyGoal.target}`}
+          value={`${weeklyGoal.current}/${weeklyGoal.target || 'N/A'}`}
           icon={<CalendarIcon className="h-4 w-4" />}
-          description={`${weeklyGoal.percentage}% of goal`}
+          description={weeklyGoal.target ? `${weeklyGoal.percentage}% of goal` : 'No goal set'}
         />
       </div>
       
       {/* Start Workout Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Start Workout</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {getWorkouts().map((workout) => (
-            <WorkoutButton
-              key={workout.id}
-              workout={workout}
-              onClick={() => handleStartWorkout(workout.id)}
-            />
-          ))}
-        </div>
+        {workouts.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {workouts.map((workout) => (
+              <WorkoutButton
+                key={workout.id}
+                workout={workout}
+                onClick={() => handleStartWorkout(workout.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center">
+            <p className="text-muted-foreground mb-4">No workouts available. Create a workout to get started.</p>
+            <Button onClick={() => navigate('/create-workout')}>Create Workout</Button>
+          </div>
+        )}
       </div>
       
       {/* Progress Charts */}

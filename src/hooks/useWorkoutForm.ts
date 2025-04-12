@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -70,21 +71,23 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     
     setExerciseLogs(updatedLogs);
     
+    // Start or stop rest timer based on completion status
     if (field === 'completed' && value === true && workout) {
-      const exercise = workout.exercises.find(e => e.id === updatedLogs[exerciseIndex].exerciseId);
-      if (exercise) {
-        const timerId = `${exerciseIndex}-${setIndex}`;
-        setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
-      }
+      // Immediately start the rest timer when a set is marked as completed
+      const timerId = `${exerciseIndex}-${setIndex}`;
+      setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
+      console.log(`Starting rest timer for ${timerId}`);
     }
     
     if (field === 'completed' && value === false) {
+      // Remove rest timer when a set is marked as not completed
       const timerId = `${exerciseIndex}-${setIndex}`;
       setActiveRestTimers(prev => {
         const updated = { ...prev };
         delete updated[timerId];
         return updated;
       });
+      console.log(`Removing rest timer for ${timerId}`);
     }
   };
   
@@ -94,6 +97,7 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
       delete updated[timerId];
       return updated;
     });
+    console.log(`Rest timer complete for ${timerId}`);
     toast.info("Rest period complete! Start your next set.");
   };
   

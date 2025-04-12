@@ -17,28 +17,31 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     setIsActive(true); // Always start active when timer is reset
   }, [defaultRestTime]);
   
-  // Timer countdown effect
+  // Timer countdown effect - this is the core of the timer functionality
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let intervalId: number | undefined;
     
     if (isActive && secondsLeft > 0) {
-      interval = setInterval(() => {
+      // Using window.setInterval to ensure it works correctly in the browser
+      intervalId = window.setInterval(() => {
         setSecondsLeft((prevSeconds) => {
-          const newValue = prevSeconds - 1;
-          if (newValue <= 0) {
-            onComplete();
+          if (prevSeconds <= 1) {
+            // Clear the interval and call onComplete when we reach 0
+            window.clearInterval(intervalId);
+            // Call onComplete in the next tick to ensure state updates first
+            setTimeout(() => onComplete(), 0);
             return 0;
           }
-          return newValue;
+          return prevSeconds - 1;
         });
       }, 1000);
-    } else if (secondsLeft === 0) {
-      // Ensure we call onComplete when seconds reach 0
-      onComplete();
     }
     
+    // Clean up interval on component unmount or when timer becomes inactive
     return () => {
-      if (interval) clearInterval(interval);
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+      }
     };
   }, [isActive, secondsLeft, onComplete]);
   

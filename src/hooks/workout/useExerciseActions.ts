@@ -28,25 +28,7 @@ export const useExerciseActions = (
     
     setExerciseLogs(updatedLogs);
     
-    if (field === 'completed' && value === true && workout) {
-      const timerId = `${exerciseIndex}-${setIndex}`;
-      
-      if (setIndex < updatedLogs[exerciseIndex].sets.length - 1 || updatedSets.length === 1) {
-        // Create a new object instead of using a callback function
-        const updatedTimers = { ...activeRestTimers, [timerId]: true };
-        setActiveRestTimers(updatedTimers);
-        console.log(`Starting rest timer for ${timerId}`);
-      }
-    }
-    
-    if (field === 'completed' && value === false) {
-      const timerId = `${exerciseIndex}-${setIndex}`;
-      // Create a new object instead of using a callback function
-      const updatedTimers = { ...activeRestTimers };
-      delete updatedTimers[timerId];
-      setActiveRestTimers(updatedTimers);
-      console.log(`Removing rest timer for ${timerId}`);
-    }
+    // Removed the code that starts the rest timer when a set is completed
   };
   
   const handleRestTimerComplete = (timerId: string) => {

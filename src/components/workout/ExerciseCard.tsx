@@ -157,10 +157,12 @@ const ExerciseCard = ({
                     </Button>
                     
                     {showRestTimer && exercise && (
-                      <RestTimer 
-                        defaultRestTime={exercise.defaultRestPeriod || 60} 
-                        onComplete={() => onRestTimerComplete(timerId)} 
-                      />
+                      <div className="flex-1 min-w-[120px]">
+                        <RestTimer 
+                          defaultRestTime={exercise.defaultRestPeriod || 60} 
+                          onComplete={() => onRestTimerComplete(timerId)} 
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

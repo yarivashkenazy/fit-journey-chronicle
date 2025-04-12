@@ -61,24 +61,37 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     setIsActive(!isActive);
   };
   
+  // Calculate progress percentage for visual indicator
+  const progressPercentage = ((defaultRestTime - secondsLeft) / defaultRestTime) * 100;
+  
   return (
-    <div className="flex items-center gap-1 text-xs">
-      <div className="flex items-center">
-        <TimerIcon className="h-3 w-3 text-orange-500 mr-1" />
-        <span className="font-medium">{formatTime()}</span>
+    <div className="flex flex-col gap-1 text-xs">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center">
+          <TimerIcon className="h-3 w-3 text-orange-500 mr-1" />
+          <span className="font-medium">{formatTime()}</span>
+        </div>
+        <button 
+          onClick={handlePauseResume}
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+        </button>
+        <button 
+          onClick={handleSkip}
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          <SkipForward className="h-3 w-3" />
+        </button>
       </div>
-      <button 
-        onClick={handlePauseResume}
-        className="text-xs text-muted-foreground hover:text-foreground"
-      >
-        {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-      </button>
-      <button 
-        onClick={handleSkip}
-        className="text-xs text-muted-foreground hover:text-foreground"
-      >
-        <SkipForward className="h-3 w-3" />
-      </button>
+      
+      {/* Visual countdown indicator */}
+      <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-orange-500 transition-all duration-1000 ease-linear"
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Check, Info, Trash, Clock, GripVertical } from "lucide-react";
@@ -161,7 +162,7 @@ const ExerciseCard = ({
                       {showRestTimer ? (
                         <Clock className="h-4 w-4 text-white" />
                       ) : (
-                        <Check className={`h-4 w-4 ${set.completed ? 'text-white' : 'text-muted-foreground'}`} />
+                        <Check className={`h-4 w-4 ${set.completed ? 'text-white' : 'text-green-500'}`} />
                       )}
                     </Button>
                     

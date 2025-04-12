@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Check, Info, Trash, Clock, GripVertical } from "lucide-react";
@@ -125,7 +124,7 @@ const ExerciseCard = ({
                         type="number"
                         value={set.weight || ""}
                         onChange={(e) => onSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
-                        className={`pl-2 pr-8 ${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
+                        className={`pl-2 pr-8 ${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500 bg-green-50' : ''}`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         kg
@@ -137,7 +136,7 @@ const ExerciseCard = ({
                       type="number"
                       value={set.reps || ""}
                       onChange={(e) => onSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
-                      className={`${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
+                      className={`${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500 bg-green-50' : ''}`}
                     />
                   </div>
                   <div className="col-span-3 flex items-center gap-2">
@@ -161,10 +160,8 @@ const ExerciseCard = ({
                     >
                       {showRestTimer ? (
                         <Clock className="h-4 w-4 text-white" />
-                      ) : set.completed ? (
-                        <Check className="h-4 w-4" />
                       ) : (
-                        <Clock className="h-4 w-4" />
+                        <Check className={`h-4 w-4 ${set.completed ? 'text-white' : 'text-muted-foreground'}`} />
                       )}
                     </Button>
                     

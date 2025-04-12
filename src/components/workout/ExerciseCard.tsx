@@ -129,7 +129,7 @@ const ExerciseCard = ({
                         className={`pl-2 pr-8 ${set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        lb
+                        kg
                       </span>
                     </div>
                   </div>
@@ -157,15 +157,16 @@ const ExerciseCard = ({
                     >
                       {set.completed ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </Button>
+                    
+                    {/* Inline rest timer */}
+                    {showRestTimer && exercise && (
+                      <RestTimer 
+                        defaultRestTime={exercise.defaultRestPeriod} 
+                        onComplete={() => onRestTimerComplete(timerId)} 
+                      />
+                    )}
                   </div>
                 </div>
-                
-                {showRestTimer && exercise && (
-                  <RestTimer 
-                    defaultRestTime={exercise.defaultRestPeriod} 
-                    onComplete={() => onRestTimerComplete(timerId)} 
-                  />
-                )}
               </div>
             );
           })}

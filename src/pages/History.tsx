@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,7 +34,6 @@ const History = () => {
     const logs = getWorkoutLogs();
     setWorkoutLogs(logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     
-    // Group logs by month
     const grouped = logs.reduce((acc, log) => {
       const date = new Date(log.date);
       const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
@@ -48,7 +46,6 @@ const History = () => {
       return acc;
     }, {} as Record<string, WorkoutLog[]>);
     
-    // Sort each month's logs by date (newest first)
     Object.keys(grouped).forEach(month => {
       grouped[month].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
@@ -77,7 +74,7 @@ const History = () => {
   const confirmDelete = () => {
     if (logToDelete) {
       deleteWorkoutLog(logToDelete);
-      loadWorkoutLogs(); // Reload the logs
+      loadWorkoutLogs();
       setDeleteConfirmOpen(false);
       setLogToDelete(null);
       toast({
@@ -265,7 +262,7 @@ const History = () => {
                                   {exerciseLog.sets.map((set, index) => (
                                     <div key={set.id} className="grid grid-cols-3 gap-2 text-sm">
                                       <div>{index + 1}</div>
-                                      <div>{set.weight} lb</div>
+                                      <div>{set.weight} kg</div>
                                       <div>{set.reps}</div>
                                     </div>
                                   ))}

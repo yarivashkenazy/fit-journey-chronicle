@@ -24,7 +24,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-lg">Weight Progress</CardTitle>
+          <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
           <ExerciseSelector 
             exercises={stats.exerciseProgress} 
             selectedExerciseId={selectedExerciseId}
@@ -38,16 +38,34 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     );
   }
 
-  // Format the data for the chart
-  const chartData = exerciseData.data.map(point => ({
-    date: new Date(point.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    weight: point.maxWeight
-  }));
+  // Get the last 28 days of data (or all if less than 28 days)
+  const sortedData = [...exerciseData.data].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+  
+  const last28Days = sortedData.slice(-28);
+
+  // Calculate 7-day moving average
+  const chartData = last28Days.map((point, index, array) => {
+    // Get previous 7 days (or less if at the beginning)
+    const startIndex = Math.max(0, index - 6);
+    const windowPoints = array.slice(startIndex, index + 1);
+    
+    // Calculate average
+    const sum = windowPoints.reduce((acc, p) => acc + p.maxWeight, 0);
+    const average = windowPoints.length > 0 ? sum / windowPoints.length : 0;
+    
+    return {
+      date: new Date(point.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      weight: point.maxWeight,
+      average: Number(average.toFixed(1)) // Round to 1 decimal place
+    };
+  });
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">Weight Progress</CardTitle>
+        <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
         <ExerciseSelector 
           exercises={stats.exerciseProgress} 
           selectedExerciseId={selectedExerciseId}
@@ -64,14 +82,29 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
-              <Tooltip />
+              <Tooltip 
+                labelFormatter={(label) => `Date: ${label}`}
+                formatter={(value, name) => {
+                  return [value, name === 'average' ? '7-day Average' : 'Weight'];
+                }}
+              />
               <Line
                 type="monotone"
                 dataKey="weight"
                 stroke="#3B82F6"
                 strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
+                name="Weight"
+              />
+              <Line
+                type="monotone"
+                dataKey="average"
+                stroke="#10B981"
+                strokeWidth={2}
+                dot={false}
+                strokeDasharray="3 3"
+                name="7-day Average"
               />
             </LineChart>
           </ResponsiveContainer>

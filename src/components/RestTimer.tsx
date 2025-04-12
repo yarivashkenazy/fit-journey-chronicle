@@ -44,21 +44,33 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     onComplete();
   };
   
+  const handlePauseResume = () => {
+    setIsActive(!isActive);
+  };
+  
   return (
-    <div className="flex flex-col gap-2 p-2 border border-fitness-secondary/30 rounded-md bg-fitness-secondary/5">
+    <div className="flex flex-col gap-2 p-3 border border-fitness-secondary/30 rounded-md bg-fitness-secondary/5 animate-pulse">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <TimerIcon className="h-4 w-4 text-fitness-secondary" />
           <span className="font-medium">{formatTime()}</span>
         </div>
-        <button 
-          onClick={handleSkip}
-          className="text-xs text-muted-foreground hover:text-foreground"
-        >
-          Skip
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handlePauseResume}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            {isActive ? "Pause" : "Resume"}
+          </button>
+          <button 
+            onClick={handleSkip}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Skip
+          </button>
+        </div>
       </div>
-      <Progress value={progress} className="h-1.5" />
+      <Progress value={progress} className="h-2 bg-muted" />
     </div>
   );
 };

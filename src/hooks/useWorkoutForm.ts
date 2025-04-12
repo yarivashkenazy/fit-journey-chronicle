@@ -6,6 +6,7 @@ import { getWorkout, saveWorkoutLog, saveWorkout } from "@/utils/storageService"
 
 export const useWorkoutForm = (workoutId: string | undefined) => {
   const [workout, setWorkout] = useState<Workout | null>(null);
+  const [originalWorkout, setOriginalWorkout] = useState<Workout | null>(null);
   const [startTime, setStartTime] = useState<Date>(new Date());
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
   const [notes, setNotes] = useState<string>("");
@@ -18,6 +19,8 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
       const workoutTemplate = getWorkout(workoutId);
       if (workoutTemplate) {
         setWorkout(workoutTemplate);
+        // Keep a copy of the original workout for restoring defaults
+        setOriginalWorkout(JSON.parse(JSON.stringify(workoutTemplate)));
         
         // Initialize exercise logs
         const initialLogs = workoutTemplate.exercises.map(exercise => {
@@ -208,6 +211,43 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     return workout?.exercises.find(e => e.id === id);
   };
   
+  // New function to restore default exercises
+  const restoreDefaultExercises = () => {
+    if (!originalWorkout || !workout) return;
+    
+    // Reset workout to original state
+    setWorkout(JSON.parse(JSON.stringify(originalWorkout)));
+    saveWorkout(originalWorkout);
+    
+    // Regenerate exercise logs from original workout
+    const initialLogs = originalWorkout.exercises.map(exercise => {
+      // Create sets based on default count
+      const sets: Set[] = Array(exercise.defaultSets).fill(0).map(() => ({
+        id: uuidv4(),
+        weight: 0,
+        reps: 0,
+        completed: false
+      }));
+      
+      return {
+        id: uuidv4(),
+        exerciseId: exercise.id,
+        exerciseName: exercise.name,
+        sets,
+        date: new Date().toISOString().split('T')[0]
+      };
+    });
+    
+    setExerciseLogs(initialLogs);
+  };
+  
+  // New function to handle exercise reordering
+  const reorderExercises = (updatedWorkout: Workout, reorderedExercises: ExerciseLog[]) => {
+    setWorkout(updatedWorkout);
+    setExerciseLogs(reorderedExercises);
+    saveWorkout(updatedWorkout);
+  };
+  
   return {
     workout,
     exerciseLogs,
@@ -221,6 +261,8 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     removeExercise,
     addNewExercise,
     getExerciseById,
-    setNotes
+    setNotes,
+    restoreDefaultExercises,
+    reorderExercises
   };
 };

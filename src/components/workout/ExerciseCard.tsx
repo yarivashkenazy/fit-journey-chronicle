@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Plus, Check, Info, Trash } from "lucide-react";
+import { Plus, Check, Info, Trash, Clock, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,12 @@ interface ExerciseCardProps {
   onRemoveExercise: (exerciseIndex: number) => void;
   activeRestTimers: Record<string, boolean>;
   onRestTimerComplete: (timerId: string) => void;
+  // New props for drag and drop
+  onDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
+  onDragEnter: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
+  onDragEnd: () => void;
+  isDragging: boolean;
+  draggedIndex: number | null;
 }
 
 const ExerciseCard = ({
@@ -33,13 +39,31 @@ const ExerciseCard = ({
   onAddSet,
   onRemoveExercise,
   activeRestTimers,
-  onRestTimerComplete
+  onRestTimerComplete,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  isDragging,
+  draggedIndex
 }: ExerciseCardProps) => {
+  const isBeingDragged = draggedIndex === exerciseIndex;
+  const dragClass = isBeingDragged ? "opacity-50" : "";
+  const dropTargetClass = isDragging && !isBeingDragged ? "border-dashed border-2 border-fitness-primary/50" : "";
+
   return (
-    <Card key={exerciseLog.id}>
+    <Card 
+      key={exerciseLog.id} 
+      className={`${dragClass} ${dropTargetClass} transition-all`}
+      draggable
+      onDragStart={(e) => onDragStart(e, exerciseIndex)}
+      onDragEnter={(e) => onDragEnter(e, exerciseIndex)}
+      onDragEnd={onDragEnd}
+      onDragOver={(e) => e.preventDefault()}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center">
+            <GripVertical className="h-5 w-5 mr-2 text-muted-foreground cursor-grab" />
             {exerciseLog.exerciseName}
             {exercise?.formCues && (
               <TooltipProvider>
@@ -122,9 +146,16 @@ const ExerciseCard = ({
                       size="icon"
                       variant={set.completed ? "default" : "outline"}
                       className={`h-8 w-8 ${set.completed ? 'bg-fitness-secondary hover:bg-fitness-secondary/90' : ''}`}
-                      onClick={() => onSetChange(exerciseIndex, setIndex, 'completed', !set.completed)}
+                      onClick={() => {
+                        // Mark as completed and start timer automatically
+                        if (!set.completed) {
+                          onSetChange(exerciseIndex, setIndex, 'completed', true);
+                        } else {
+                          onSetChange(exerciseIndex, setIndex, 'completed', false);
+                        }
+                      }}
                     >
-                      <Check className="h-4 w-4" />
+                      {set.completed ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>

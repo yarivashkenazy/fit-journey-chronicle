@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Award, Dumbbell, CalendarIcon, RefreshCw } from "lucide-react";
+import { Activity, Award, CalendarIcon, RefreshCw } from "lucide-react";
 import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
@@ -11,6 +10,7 @@ import GoalSetting from "@/components/GoalSetting";
 import { getActiveWorkoutGoal, getWorkoutLogs, getWorkouts, initializeStorage } from "@/utils/storageService";
 import { calculateCurrentStreak, calculateWeeklyGoalProgress, calculateWorkoutStats } from "@/utils/statsUtils";
 import { WorkoutStats } from "@/types/workout";
+import WorkoutButton from "@/components/WorkoutButton";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -97,16 +97,11 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold">Start Workout</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {getWorkouts().map((workout) => (
-            <Button
+            <WorkoutButton
               key={workout.id}
-              className="h-auto py-6 border border-input bg-background hover:bg-accent flex flex-col items-center justify-center gap-2"
-              variant="outline"
+              workout={workout}
               onClick={() => handleStartWorkout(workout.id)}
-            >
-              <Dumbbell className="h-6 w-6 text-fitness-primary" />
-              <span className="font-semibold">{workout.name}</span>
-              <span className="text-xs text-muted-foreground">{workout.description}</span>
-            </Button>
+            />
           ))}
         </div>
       </div>

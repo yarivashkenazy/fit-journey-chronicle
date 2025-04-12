@@ -63,26 +63,6 @@ const ActivityCalendar = () => {
               ),
             }}
           />
-          
-          <div className="mt-2 space-y-1 flex-grow">
-            {selectedDateWorkouts.length > 0 ? (
-              <>
-                <h3 className="text-sm font-medium">Workouts on {selectedDate?.toLocaleDateString()}</h3>
-                <div className="max-h-[120px] overflow-y-auto">
-                  {selectedDateWorkouts.map((log) => (
-                    <div key={log.id} className="p-1.5 bg-muted/30 rounded-md mb-1 text-xs">
-                      <div className="font-medium">{log.workoutName}</div>
-                      <div className="text-muted-foreground">
-                        {log.exerciseLogs.length} exercises, {log.duration} min
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="h-[120px]"></div>
-            )}
-          </div>
         </div>
       </CardContent>
     </Card>

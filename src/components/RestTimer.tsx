@@ -40,7 +40,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         
         return prevTime - 1;
       });
-    }, 1000);
+    }, 1000); // Update every second
     
     // Clean up on unmount
     return () => {

@@ -8,7 +8,7 @@ import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import ActivityCalendar from "@/components/ActivityCalendar";
 import GoalSetting from "@/components/GoalSetting";
-import { getActiveWorkoutGoal, getWorkoutLogs, getWorkouts, initializeStorage, resetAndReinitializeStorage } from "@/utils/storageService";
+import { getActiveWorkoutGoal, getWorkoutLogs, getWorkouts, initializeStorage } from "@/utils/storageService";
 import { calculateWorkoutStats, calculateWeeklyGoalProgress } from "@/utils/statsUtils";
 import { WorkoutStats } from "@/types/workout";
 import WorkoutButton from "@/components/WorkoutButton";
@@ -56,13 +56,6 @@ const Dashboard = () => {
     loadData();
   };
   
-  const handleResetData = () => {
-    setIsLoading(true);
-    resetAndReinitializeStorage();
-    toast.success("Data has been reset");
-    loadData();
-  };
-  
   if (!stats) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -74,9 +67,6 @@ const Dashboard = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleResetData} disabled={isLoading}>
-            Reset Data
-          </Button>
           <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh

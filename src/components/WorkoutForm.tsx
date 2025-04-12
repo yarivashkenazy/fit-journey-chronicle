@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { Timer, ArrowLeft, Plus, ChevronDown, ChevronUp, Check, Info } from "lucide-react";
+import { Timer, ArrowLeft, Plus, ChevronDown, ChevronUp, Check, Info, Trash, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,10 +18,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Exercise, ExerciseLog, Set, Workout, WorkoutLog } from "@/types/workout";
-import { getWorkout, saveWorkoutLog } from "@/utils/storageService";
+import { getWorkout, saveWorkoutLog, saveWorkout } from "@/utils/storageService";
 import { toast } from "sonner";
+import RestTimer from "./RestTimer";
 
 const WorkoutForm = () => {
   const navigate = useNavigate();
@@ -32,6 +41,21 @@ const WorkoutForm = () => {
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
   const [notes, setNotes] = useState<string>("");
   const [elapsedTime, setElapsedTime] = useState<string>("00:00");
+  const [activeRestTimers, setActiveRestTimers] = useState<Record<string, boolean>>({});
+  const [newExerciseDialogOpen, setNewExerciseDialogOpen] = useState(false);
+  const [newExercise, setNewExercise] = useState<{
+    name: string;
+    sets: number;
+    reps: string;
+    rest: number;
+    notes: string;
+  }>({
+    name: "",
+    sets: 3,
+    reps: "8-12",
+    rest: 60,
+    notes: ""
+  });
   
   // Load the workout template
   useEffect(() => {
@@ -92,6 +116,20 @@ const WorkoutForm = () => {
     };
     
     setExerciseLogs(updatedLogs);
+    
+    // If this is a completion status change to true, start the rest timer
+    if (field === 'completed' && value === true && workout) {
+      const exercise = workout.exercises.find(e => e.id === updatedLogs[exerciseIndex].exerciseId);
+      if (exercise) {
+        const timerId = `${exerciseIndex}-${setIndex}`;
+        setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
+      }
+    }
+  };
+  
+  const handleRestTimerComplete = (timerId: string) => {
+    setActiveRestTimers(prev => ({ ...prev, [timerId]: false }));
+    toast.info("Rest period complete! Start your next set.");
   };
   
   const addSet = (exerciseIndex: number) => {
@@ -141,6 +179,78 @@ const WorkoutForm = () => {
     saveWorkoutLog(workoutLog);
     toast.success("Workout completed and saved!");
     navigate("/history");
+  };
+  
+  const removeExercise = (exerciseIndex: number) => {
+    if (!workout) return;
+    
+    // Create a new array without the removed exercise
+    const updatedLogs = [...exerciseLogs];
+    updatedLogs.splice(exerciseIndex, 1);
+    setExerciseLogs(updatedLogs);
+    
+    // Also update the workout template to keep it in sync
+    const updatedWorkout = { ...workout };
+    updatedWorkout.exercises = [...workout.exercises];
+    updatedWorkout.exercises.splice(exerciseIndex, 1);
+    setWorkout(updatedWorkout);
+    
+    // Save the updated workout template
+    saveWorkout(updatedWorkout);
+    toast.success("Exercise removed from workout");
+  };
+  
+  const addNewExercise = () => {
+    if (!workout) return;
+    
+    // Create a new exercise
+    const newExerciseObj: Exercise = {
+      id: uuidv4(),
+      name: newExercise.name,
+      type: 'accessory',
+      targetMuscleGroup: '',
+      defaultSets: newExercise.sets,
+      defaultReps: newExercise.reps,
+      defaultRestPeriod: newExercise.rest,
+      notes: newExercise.notes,
+      formCues: []
+    };
+    
+    // Add to workout template
+    const updatedWorkout = { ...workout };
+    updatedWorkout.exercises = [...workout.exercises, newExerciseObj];
+    setWorkout(updatedWorkout);
+    
+    // Add to exercise logs
+    const newLog: ExerciseLog = {
+      id: uuidv4(),
+      exerciseId: newExerciseObj.id,
+      exerciseName: newExerciseObj.name,
+      sets: Array(newExerciseObj.defaultSets).fill(0).map(() => ({
+        id: uuidv4(),
+        weight: 0,
+        reps: 0,
+        completed: false
+      })),
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    setExerciseLogs([...exerciseLogs, newLog]);
+    
+    // Save the updated workout template
+    saveWorkout(updatedWorkout);
+    
+    // Reset new exercise form and close dialog
+    setNewExercise({
+      name: "",
+      sets: 3,
+      reps: "8-12",
+      rest: 60,
+      notes: ""
+    });
+    setNewExerciseDialogOpen(false);
+    
+    toast.success("New exercise added to workout");
   };
   
   if (!workout) {
@@ -201,8 +311,18 @@ const WorkoutForm = () => {
                     </TooltipProvider>
                   )}
                 </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  Rest: {exercise?.defaultRestPeriod || 60}s
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-muted-foreground">
+                    Rest: {exercise?.defaultRestPeriod || 60}s
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-destructive"
+                    onClick={() => removeExercise(exerciseIndex)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -215,42 +335,56 @@ const WorkoutForm = () => {
                   <div className="col-span-3"></div>
                 </div>
                 
-                {exerciseLog.sets.map((set, setIndex) => (
-                  <div key={set.id} className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
-                    <div className="col-span-4">
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          value={set.weight || ""}
-                          onChange={(e) => handleSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
-                          className={`pl-2 pr-8 ${set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}`}
-                        />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                          lb
-                        </span>
+                {exerciseLog.sets.map((set, setIndex) => {
+                  const timerId = `${exerciseIndex}-${setIndex}`;
+                  const showRestTimer = activeRestTimers[timerId];
+                  
+                  return (
+                    <div key={set.id} className="space-y-2">
+                      <div className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
+                        <div className="col-span-4">
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              value={set.weight || ""}
+                              onChange={(e) => handleSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
+                              className={`pl-2 pr-8 ${set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}`}
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                              lb
+                            </span>
+                          </div>
+                        </div>
+                        <div className="col-span-4">
+                          <Input
+                            type="number"
+                            value={set.reps || ""}
+                            onChange={(e) => handleSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
+                            className={set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}
+                          />
+                        </div>
+                        <div className="col-span-3 flex items-center space-x-1">
+                          <Button
+                            size="icon"
+                            variant={set.completed ? "default" : "outline"}
+                            className={`h-8 w-8 ${set.completed ? 'bg-fitness-secondary hover:bg-fitness-secondary/90' : ''}`}
+                            onClick={() => handleSetChange(exerciseIndex, setIndex, 'completed', !set.completed)}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
+                      
+                      {showRestTimer && exercise && (
+                        <RestTimer 
+                          defaultRestTime={exercise.defaultRestPeriod} 
+                          onComplete={() => handleRestTimerComplete(timerId)} 
+                        />
+                      )}
                     </div>
-                    <div className="col-span-4">
-                      <Input
-                        type="number"
-                        value={set.reps || ""}
-                        onChange={(e) => handleSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
-                        className={set.completed ? 'border-fitness-secondary/50 bg-fitness-secondary/10' : ''}
-                      />
-                    </div>
-                    <div className="col-span-3 flex items-center space-x-1">
-                      <Button
-                        size="icon"
-                        variant={set.completed ? "default" : "outline"}
-                        className={`h-8 w-8 ${set.completed ? 'bg-fitness-secondary hover:bg-fitness-secondary/90' : ''}`}
-                        onClick={() => handleSetChange(exerciseIndex, setIndex, 'completed', !set.completed)}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 
                 <Button 
                   variant="ghost" 
@@ -265,6 +399,89 @@ const WorkoutForm = () => {
           </Card>
         );
       })}
+      
+      <Dialog open={newExerciseDialogOpen} onOpenChange={setNewExerciseDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Exercise
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Exercise</DialogTitle>
+            <DialogDescription>
+              Add a custom exercise to your workout routine.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="exercise-name">Exercise Name</Label>
+              <Input 
+                id="exercise-name" 
+                value={newExercise.name}
+                onChange={(e) => setNewExercise({...newExercise, name: e.target.value})}
+                placeholder="e.g. Dumbbell Curls"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="default-sets">Default Sets</Label>
+                <Input 
+                  id="default-sets"
+                  type="number" 
+                  value={newExercise.sets}
+                  onChange={(e) => setNewExercise({...newExercise, sets: Number(e.target.value)})}
+                  min={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="default-reps">Target Reps</Label>
+                <Input 
+                  id="default-reps" 
+                  value={newExercise.reps}
+                  onChange={(e) => setNewExercise({...newExercise, reps: e.target.value})}
+                  placeholder="e.g. 8-12"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="rest-period">Rest Period (seconds)</Label>
+              <Input 
+                id="rest-period"
+                type="number" 
+                value={newExercise.rest}
+                onChange={(e) => setNewExercise({...newExercise, rest: Number(e.target.value)})}
+                min={15}
+                step={15}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="exercise-notes">Notes</Label>
+              <Textarea 
+                id="exercise-notes" 
+                value={newExercise.notes}
+                onChange={(e) => setNewExercise({...newExercise, notes: e.target.value})}
+                placeholder="Add any notes or form cues here"
+                rows={3}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewExerciseDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addNewExercise} disabled={!newExercise.name}>
+              Add Exercise
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <Card>
         <CardHeader>

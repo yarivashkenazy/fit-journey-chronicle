@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Award, BarChart, Dumbbell, CalendarIcon, TrendingUp } from "lucide-react";
+import { Activity, Award, BarChart, Dumbbell, CalendarIcon, TrendingUp, RefreshCw } from "lucide-react";
 import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
@@ -17,8 +17,11 @@ const Dashboard = () => {
   const [stats, setStats] = useState<WorkoutStats | null>(null);
   const [weeklyGoal, setWeeklyGoal] = useState({ current: 0, target: 3, percentage: 0 });
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
+  const loadData = () => {
+    setIsLoading(true);
+    
     // Initialize local storage with sample data if empty
     initializeStorage();
     
@@ -38,10 +41,20 @@ const Dashboard = () => {
     // Calculate current streak
     const streak = calculateCurrentStreak(logs);
     setCurrentStreak(streak);
+    
+    setIsLoading(false);
+  };
+  
+  useEffect(() => {
+    loadData();
   }, []);
   
   const handleStartWorkout = (workoutId: string) => {
     navigate(`/workout/${workoutId}`);
+  };
+  
+  const handleRefresh = () => {
+    loadData();
   };
   
   if (!stats) {
@@ -52,6 +65,10 @@ const Dashboard = () => {
     <div className="container py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
+        <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
       
       {/* Stats Overview */}
@@ -112,7 +129,7 @@ const Dashboard = () => {
         </div>
         <div className="space-y-6">
           <ActivityCalendar />
-          <GoalSetting />
+          <GoalSetting onGoalUpdate={handleRefresh} />
         </div>
       </div>
     </div>

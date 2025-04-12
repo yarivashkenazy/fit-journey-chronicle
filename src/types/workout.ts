@@ -1,4 +1,3 @@
-
 export type ExerciseType = 'compound' | 'accessory' | 'finishing' | 'unilateral' | 'superset';
 
 export interface Exercise {
@@ -55,6 +54,7 @@ export interface WorkoutGoal {
   startDate: string;
   endDate?: string;
   isActive: boolean;
+  targetStreak?: number; // New field for streak goal
 }
 
 export interface WorkoutStats {

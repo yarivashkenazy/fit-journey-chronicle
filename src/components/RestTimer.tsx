@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Timer as TimerIcon } from "lucide-react";
+import { Timer as TimerIcon, Pause, Play, SkipForward } from "lucide-react";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds
@@ -19,23 +19,21 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   
   // Timer countdown effect
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    let interval: NodeJS.Timeout | null = null;
     
     if (isActive && secondsLeft > 0) {
       interval = setInterval(() => {
-        setSecondsLeft(prevSeconds => {
-          if (prevSeconds <= 1) {
-            if (interval) clearInterval(interval);
-            setIsActive(false);
+        setSecondsLeft((prevSeconds) => {
+          const newValue = prevSeconds - 1;
+          if (newValue <= 0) {
             onComplete();
             return 0;
           }
-          return prevSeconds - 1;
+          return newValue;
         });
       }, 1000);
-    } else if (secondsLeft === 0 && isActive) {
-      // Ensure we call onComplete if seconds reach 0
-      setIsActive(false);
+    } else if (secondsLeft === 0) {
+      // Ensure we call onComplete when seconds reach 0
       onComplete();
     }
     
@@ -70,13 +68,13 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         onClick={handlePauseResume}
         className="text-xs text-muted-foreground hover:text-foreground"
       >
-        {isActive ? "•" : "▶"}
+        {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
       </button>
       <button 
         onClick={handleSkip}
         className="text-xs text-muted-foreground hover:text-foreground"
       >
-        ⏭
+        <SkipForward className="h-3 w-3" />
       </button>
     </div>
   );

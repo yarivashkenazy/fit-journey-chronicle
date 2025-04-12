@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Activity, RefreshCw } from "lucide-react";
-import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
 import ActivityCalendar from "@/components/ActivityCalendar";
@@ -78,15 +77,6 @@ const Dashboard = () => {
             Refresh
           </Button>
         </div>
-      </div>
-      
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
-        <StatsCard 
-          title="Total Workouts"
-          value={stats.totalWorkouts}
-          icon={<Activity className="h-4 w-4" />}
-        />
       </div>
       
       {/* Start Workout Section */}

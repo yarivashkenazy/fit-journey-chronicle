@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -14,18 +13,14 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
   const [elapsedTime, setElapsedTime] = useState<string>("00:00");
   const [activeRestTimers, setActiveRestTimers] = useState<Record<string, boolean>>({});
 
-  // Load the workout template
   useEffect(() => {
     if (workoutId) {
       const workoutTemplate = getWorkout(workoutId);
       if (workoutTemplate) {
         setWorkout(workoutTemplate);
-        // Keep a copy of the original workout for restoring defaults
         setOriginalWorkout(JSON.parse(JSON.stringify(workoutTemplate)));
         
-        // Initialize exercise logs
         const initialLogs = workoutTemplate.exercises.map(exercise => {
-          // Create sets based on default count
           const sets: Set[] = Array(exercise.defaultSets).fill(0).map(() => ({
             id: uuidv4(),
             weight: 0,
@@ -47,7 +42,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     }
   }, [workoutId]);
   
-  // Update the timer every second
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
@@ -76,7 +70,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     
     setExerciseLogs(updatedLogs);
     
-    // If this is a completion status change to true, start the rest timer
     if (field === 'completed' && value === true && workout) {
       const exercise = workout.exercises.find(e => e.id === updatedLogs[exerciseIndex].exerciseId);
       if (exercise) {
@@ -84,10 +77,23 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
         setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
       }
     }
+    
+    if (field === 'completed' && value === false) {
+      const timerId = `${exerciseIndex}-${setIndex}`;
+      setActiveRestTimers(prev => {
+        const updated = { ...prev };
+        delete updated[timerId];
+        return updated;
+      });
+    }
   };
   
   const handleRestTimerComplete = (timerId: string) => {
-    setActiveRestTimers(prev => ({ ...prev, [timerId]: false }));
+    setActiveRestTimers(prev => {
+      const updated = { ...prev };
+      delete updated[timerId];
+      return updated;
+    });
     toast.info("Rest period complete! Start your next set.");
   };
   
@@ -95,7 +101,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     const updatedLogs = [...exerciseLogs];
     const updatedSets = [...updatedLogs[exerciseIndex].sets];
     
-    // Copy values from the last set for convenience
     const lastSet = updatedSets[updatedSets.length - 1];
     
     updatedSets.push({
@@ -119,7 +124,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     const now = new Date();
     const duration = Math.floor((now.getTime() - startTime.getTime()) / 60000);
     
-    // Filter out empty sets
     const filteredLogs = exerciseLogs.map(log => ({
       ...log,
       sets: log.sets.filter(set => set.weight > 0 && set.reps > 0)
@@ -143,18 +147,15 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
   const removeExercise = (exerciseIndex: number) => {
     if (!workout) return;
     
-    // Create a new array without the removed exercise
     const updatedLogs = [...exerciseLogs];
     updatedLogs.splice(exerciseIndex, 1);
     setExerciseLogs(updatedLogs);
     
-    // Also update the workout template to keep it in sync
     const updatedWorkout = { ...workout };
     updatedWorkout.exercises = [...workout.exercises];
     updatedWorkout.exercises.splice(exerciseIndex, 1);
     setWorkout(updatedWorkout);
     
-    // Save the updated workout template
     saveWorkout(updatedWorkout);
     toast.success("Exercise removed from workout");
   };
@@ -168,7 +169,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
   }) => {
     if (!workout) return;
     
-    // Create a new exercise
     const newExerciseObj: Exercise = {
       id: uuidv4(),
       name: newExercise.name,
@@ -181,12 +181,10 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
       formCues: []
     };
     
-    // Add to workout template
     const updatedWorkout = { ...workout };
     updatedWorkout.exercises = [...workout.exercises, newExerciseObj];
     setWorkout(updatedWorkout);
     
-    // Add to exercise logs
     const newLog: ExerciseLog = {
       id: uuidv4(),
       exerciseId: newExerciseObj.id,
@@ -202,7 +200,6 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     
     setExerciseLogs([...exerciseLogs, newLog]);
     
-    // Save the updated workout template
     saveWorkout(updatedWorkout);
     
     toast.success("New exercise added to workout");
@@ -212,17 +209,13 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     return workout?.exercises.find(e => e.id === id);
   };
   
-  // Function to restore default exercises
   const restoreDefaultExercises = () => {
     if (!originalWorkout || !workout) return;
     
-    // Reset workout to original state
     setWorkout(JSON.parse(JSON.stringify(originalWorkout)));
     saveWorkout(originalWorkout);
     
-    // Regenerate exercise logs from original workout
     const initialLogs = originalWorkout.exercises.map(exercise => {
-      // Create sets based on default count
       const sets: Set[] = Array(exercise.defaultSets).fill(0).map(() => ({
         id: uuidv4(),
         weight: 0,
@@ -243,13 +236,10 @@ export const useWorkoutForm = (workoutId: string | undefined) => {
     toast.success("Workout restored to default exercises");
   };
   
-  // Function to handle exercise reordering - fixed implementation
   const reorderExercises = (updatedWorkout: Workout, reorderedExercises: ExerciseLog[]) => {
-    // Update both the workout and exercise logs
     setWorkout(updatedWorkout);
     setExerciseLogs(reorderedExercises);
     
-    // Save the updated workout to persist the changes
     saveWorkout(updatedWorkout);
     toast.success("Exercise order updated");
   };

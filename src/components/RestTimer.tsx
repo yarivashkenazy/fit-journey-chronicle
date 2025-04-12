@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { Timer as TimerIcon } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds

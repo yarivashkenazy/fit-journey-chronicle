@@ -118,7 +118,7 @@ const ExerciseCard = ({
             
             return (
               <div key={set.id} className="space-y-2">
-                <div className="grid grid-cols-12 gap-2 items-center">
+                <div className={`grid grid-cols-12 gap-2 items-center rounded-md p-1 ${showRestTimer ? 'bg-orange-100 border border-orange-200' : ''}`}>
                   <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
                   <div className="col-span-4">
                     <div className="relative">
@@ -145,7 +145,7 @@ const ExerciseCard = ({
                     <Button
                       size="icon"
                       variant={set.completed ? "default" : "outline"}
-                      className={`h-8 w-8 ${set.completed ? 'bg-fitness-secondary hover:bg-fitness-secondary/90' : ''}`}
+                      className={`h-8 w-8 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
                       onClick={() => {
                         // Mark as completed and start timer automatically
                         if (!set.completed) {

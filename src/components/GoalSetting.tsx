@@ -54,8 +54,8 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Set Goals</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-2">
+      <CardContent className="pt-0 flex flex-col justify-between h-[calc(100%-60px)]">
+        <div className="space-y-4">
           <div>
             <div className="flex justify-between mb-1">
               <span className="text-sm">Weekly workouts</span>
@@ -75,9 +75,17 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             </div>
           </div>
           
-          <Button className="w-full" size="sm" onClick={handleSaveGoal}>
-            Save Goals
-          </Button>
+          <div className="mt-8">
+            <Button className="w-full" size="sm" onClick={handleSaveGoal}>
+              Save Goals
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-auto pt-4">
+          <p className="text-xs text-muted-foreground mt-4">
+            Setting a weekly workout goal helps you stay motivated and track your progress over time.
+          </p>
         </div>
       </CardContent>
     </Card>

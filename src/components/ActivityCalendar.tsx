@@ -44,12 +44,12 @@ const ActivityCalendar = () => {
   };
 
   return (
-    <Card className="h-full mx-auto w-full">
+    <Card className="h-full w-full">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Activity Calendar</CardTitle>
       </CardHeader>
       <CardContent className="pt-0 flex justify-center">
-        <div className="w-full max-w-[280px]">
+        <div className="w-full max-w-[260px]">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -67,11 +67,11 @@ const ActivityCalendar = () => {
           {selectedDateWorkouts.length > 0 && (
             <div className="mt-2 space-y-1">
               <h3 className="text-sm font-medium">Workouts on {selectedDate?.toLocaleDateString()}</h3>
-              <div className="max-h-24 overflow-y-auto">
+              <div className="max-h-16 overflow-y-auto">
                 {selectedDateWorkouts.map((log) => (
-                  <div key={log.id} className="p-2 bg-muted/30 rounded-md mb-1">
-                    <div className="text-sm font-medium">{log.workoutName}</div>
-                    <div className="text-xs text-muted-foreground">
+                  <div key={log.id} className="p-1.5 bg-muted/30 rounded-md mb-1 text-xs">
+                    <div className="font-medium">{log.workoutName}</div>
+                    <div className="text-muted-foreground">
                       {log.exerciseLogs.length} exercises, {log.duration} min
                     </div>
                   </div>

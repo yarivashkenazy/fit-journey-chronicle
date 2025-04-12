@@ -1,7 +1,7 @@
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, Timer, RotateCcw } from "lucide-react";
+import { ArrowLeft, Timer, RotateCcw, Dumbbell, Activity, Running, Weight, Barbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorkoutForm } from "@/hooks/useWorkoutForm";
 import ExerciseCard from "./workout/ExerciseCard";
@@ -33,6 +33,24 @@ const WorkoutForm = () => {
   // Drag and drop state
   const [isDragging, setIsDragging] = useState(false);
   const [draggedExerciseIndex, setDraggedExerciseIndex] = useState<number | null>(null);
+  
+  // Get the appropriate icon based on the workout category
+  const getWorkoutIcon = (category?: string) => {
+    switch (category) {
+      case 'push':
+        return <Dumbbell className="h-6 w-6 text-fitness-primary mr-2" />;
+      case 'pull':
+        return <Weight className="h-6 w-6 text-fitness-primary mr-2" />;
+      case 'legs':
+        return <Running className="h-6 w-6 text-fitness-primary mr-2" />;
+      case 'full':
+        return <Barbell className="h-6 w-6 text-fitness-primary mr-2" />;
+      case 'cardio':
+        return <Activity className="h-6 w-6 text-fitness-primary mr-2" />;
+      default:
+        return <Dumbbell className="h-6 w-6 text-fitness-primary mr-2" />;
+    }
+  };
   
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
@@ -105,7 +123,10 @@ const WorkoutForm = () => {
       </div>
       
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-bold">{workout.name}</h1>
+        <h1 className="text-2xl font-bold flex items-center justify-center">
+          {getWorkoutIcon(workout.category)}
+          {workout.name}
+        </h1>
         <p className="text-muted-foreground">{workout.description}</p>
       </div>
       

@@ -16,8 +16,6 @@ interface GoalSettingProps {
 const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
   const activeGoal = getActiveWorkoutGoal();
   const [targetFrequency, setTargetFrequency] = useState<number>(activeGoal?.frequency || 3);
-  const [targetStreak, setTargetStreak] = useState<number>(7);
-  const [showStreak, setShowStreak] = useState<boolean>(false);
 
   useEffect(() => {
     // Reset targetFrequency if activeGoal changes
@@ -31,8 +29,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
       id: activeGoal?.id || uuidv4(),
       frequency: targetFrequency,
       startDate: new Date().toISOString().split('T')[0],
-      isActive: true,
-      targetStreak: showStreak ? targetStreak : undefined
+      isActive: true
     };
     
     saveWorkoutGoal(newGoal);
@@ -65,39 +62,6 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             <span>Min: 1</span>
             <span>Max: 7</span>
           </div>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="enable-streak"
-              checked={showStreak}
-              onChange={() => setShowStreak(!showStreak)}
-              className="rounded border-gray-300"
-            />
-            <label htmlFor="enable-streak" className="text-sm">Set streak goal</label>
-          </div>
-          
-          {showStreak && (
-            <>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm">Target streak (days)</span>
-                <Badge variant="outline">{targetStreak}</Badge>
-              </div>
-              <Input
-                type="number"
-                min={1}
-                max={30}
-                value={targetStreak}
-                onChange={(e) => setTargetStreak(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Min: 1</span>
-                <span>Max: 30</span>
-              </div>
-            </>
-          )}
         </div>
         
         <Button className="w-full" onClick={handleSaveGoal}>

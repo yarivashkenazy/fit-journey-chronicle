@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Workout } from "@/types/workout";
+import { Dumbbell, Weight, Running, Barbell, Activity } from "lucide-react";
 
 interface WorkoutButtonProps {
   workout: Workout;
@@ -9,21 +10,21 @@ interface WorkoutButtonProps {
 }
 
 const WorkoutButton: React.FC<WorkoutButtonProps> = ({ workout, onClick }) => {
-  // Get the appropriate emoji based on the workout category
-  const getWorkoutEmoji = (category: string) => {
+  // Get the appropriate icon based on the workout category
+  const getWorkoutIcon = (category: string) => {
     switch (category) {
       case 'push':
-        return '💪'; // Flexed biceps for push workouts
+        return <Dumbbell className="h-6 w-6 mb-2" />;
       case 'pull':
-        return '🏋️'; // Person lifting weights for pull workouts
+        return <Weight className="h-6 w-6 mb-2" />;
       case 'legs':
-        return '🦵'; // Leg emoji for leg workouts
+        return <Running className="h-6 w-6 mb-2" />;
       case 'full':
-        return '👤'; // Person bust for full body workouts
+        return <Barbell className="h-6 w-6 mb-2" />;
       case 'cardio':
-        return '🏃'; // Running person for cardio
+        return <Activity className="h-6 w-6 mb-2" />;
       default:
-        return '⚡'; // Default lightning bolt
+        return <Dumbbell className="h-6 w-6 mb-2" />;
     }
   };
 
@@ -33,7 +34,7 @@ const WorkoutButton: React.FC<WorkoutButtonProps> = ({ workout, onClick }) => {
       variant="outline"
       onClick={onClick}
     >
-      <span className="text-2xl mb-1">{getWorkoutEmoji(workout.category)}</span>
+      {getWorkoutIcon(workout.category)}
       <span className="font-semibold">{workout.name}</span>
       <span className="text-xs text-muted-foreground">{workout.description}</span>
     </Button>

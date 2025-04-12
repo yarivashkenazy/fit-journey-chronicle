@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Award, BarChart, Dumbbell, Calendar as CalendarIcon, TrendingUp } from "lucide-react";
+import { Activity, Award, BarChart, Dumbbell, CalendarIcon, TrendingUp } from "lucide-react";
 import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
@@ -64,7 +64,7 @@ const Dashboard = () => {
         <StatsCard 
           title="This Week"
           value={`${weeklyGoal.current}/${weeklyGoal.target}`}
-          icon={<Calendar className="h-4 w-4" />}
+          icon={<CalendarIcon className="h-4 w-4" />}
           description={`${weeklyGoal.percentage}% of goal`}
         />
         <StatsCard 

@@ -80,7 +80,7 @@ const ActivityCalendar = () => {
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-[120px] text-xs text-muted-foreground">
+              <div className="flex items-center justify-center h-[120px] text-xs text-muted-foreground break-words text-center px-2">
                 No workouts on this date
               </div>
             )}

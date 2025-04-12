@@ -9,7 +9,7 @@ interface RestTimerProps {
 const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [isActive, setIsActive] = useState(true); // Start active by default
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const intervalRef = useRef<number | null>(null);
   
   // Reset timer when the default time changes
   useEffect(() => {
@@ -32,14 +32,14 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     // Clean up existing interval first
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      intervalRef.current = null;
     }
     
     // Only start a new interval if the timer is active and we haven't reached the end
     if (isActive && secondsElapsed < defaultRestTime) {
       console.log("Starting interval");
       
-      intervalRef.current = setInterval(() => {
+      // Using window.setInterval to make sure we get back a number
+      intervalRef.current = window.setInterval(() => {
         console.log("Interval tick");
         setSecondsElapsed(prev => {
           const nextValue = prev + 1;

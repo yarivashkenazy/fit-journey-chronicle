@@ -68,8 +68,8 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     setIsActive(!isActive);
   };
   
-  // Calculate progress percentage for visual indicator
-  const progressPercentage = ((defaultRestTime - secondsLeft) / defaultRestTime) * 100;
+  // Calculate progress percentage for visual indicator - invert it so it decreases from 100 to 0
+  const progressPercentage = (secondsLeft / defaultRestTime) * 100;
   
   return (
     <div className="flex flex-col gap-1 text-xs">
@@ -92,11 +92,11 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         </button>
       </div>
       
-      {/* Visual countdown indicator using Progress component */}
+      {/* Visual countdown indicator using Progress component with no transition */}
       <Progress 
         value={progressPercentage} 
         className="h-1.5 w-full bg-gray-200"
-        indicatorClassName="bg-orange-500 transition-all duration-0 ease-linear"
+        indicatorClassName="bg-orange-500 transition-none"
       />
     </div>
   );

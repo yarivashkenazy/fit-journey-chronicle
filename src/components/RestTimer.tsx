@@ -96,7 +96,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
       <Progress 
         value={progressPercentage} 
         className="h-1.5 w-full bg-gray-200"
-        indicatorClassName="bg-orange-500 transition-all ease-linear"
+        indicatorClassName="bg-orange-500 transition-all duration-0 ease-linear"
       />
     </div>
   );

@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useRef } from "react";
-import { Pause, Play, SkipForward } from "lucide-react";
+import { Pause, Play, SkipForward, Check } from "lucide-react";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds
@@ -69,8 +70,11 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   // Calculate progress percentage for visual indicator
   const progressPercentage = (secondsLeft / defaultRestTime) * 100;
   
-  // Return null - completely removing the visual component while keeping timer functionality
-  return null;
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="text-orange-500 font-medium">{formatTime()}</span>
+    </div>
+  );
 };
 
 export default RestTimer;

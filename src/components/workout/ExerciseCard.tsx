@@ -140,11 +140,17 @@ const ExerciseCard = ({
                       className={`${showRestTimer ? 'border-orange-400 bg-orange-50' : set.completed ? 'border-green-500/50 bg-green-50' : ''}`}
                     />
                   </div>
-                  <div className="col-span-3 flex items-center">
+                  <div className="col-span-3 flex items-center gap-2">
                     <Button
                       size="icon"
                       variant={set.completed ? "default" : "outline"}
-                      className={`h-8 w-8 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                      className={`h-8 w-8 ${
+                        showRestTimer 
+                          ? 'bg-orange-400 hover:bg-orange-500 border-orange-400' 
+                          : set.completed 
+                            ? 'bg-green-500 hover:bg-green-600 border-green-500' 
+                            : ''
+                      }`}
                       onClick={() => {
                         if (!set.completed) {
                           onSetChange(exerciseIndex, setIndex, 'completed', true);
@@ -153,19 +159,23 @@ const ExerciseCard = ({
                         }
                       }}
                     >
-                      {set.completed ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                      {showRestTimer ? (
+                        <Clock className="h-4 w-4 text-white" />
+                      ) : set.completed ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <Clock className="h-4 w-4" />
+                      )}
                     </Button>
+                    
+                    {showRestTimer && (
+                      <RestTimer 
+                        defaultRestTime={exercise?.defaultRestPeriod || 60} 
+                        onComplete={() => onRestTimerComplete(timerId)} 
+                      />
+                    )}
                   </div>
                 </div>
-                
-                {showRestTimer && exercise && (
-                  <div className="ml-9">
-                    <RestTimer 
-                      defaultRestTime={exercise.defaultRestPeriod || 60} 
-                      onComplete={() => onRestTimerComplete(timerId)} 
-                    />
-                  </div>
-                )}
               </div>
             );
           })}

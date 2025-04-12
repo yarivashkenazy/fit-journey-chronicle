@@ -14,17 +14,19 @@ interface GoalSettingProps {
 }
 
 const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
-  const activeGoal = getActiveWorkoutGoal();
-  const [targetFrequency, setTargetFrequency] = useState<number>(activeGoal?.frequency || 3);
-
+  // Set a default value of 3 if no active goal exists
+  const [targetFrequency, setTargetFrequency] = useState<number>(3);
+  
   useEffect(() => {
-    // Reset targetFrequency if activeGoal changes
+    // Get active goal on component mount
+    const activeGoal = getActiveWorkoutGoal();
     if (activeGoal) {
       setTargetFrequency(activeGoal.frequency);
     }
-  }, [activeGoal]);
+  }, []);
 
   const handleSaveGoal = () => {
+    const activeGoal = getActiveWorkoutGoal();
     const newGoal: WorkoutGoal = {
       id: activeGoal?.id || uuidv4(),
       frequency: targetFrequency,

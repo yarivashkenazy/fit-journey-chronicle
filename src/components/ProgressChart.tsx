@@ -1,10 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutStats } from "@/types/workout";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
 
 interface ProgressChartProps {
   stats: WorkoutStats;
@@ -93,50 +92,6 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     };
   });
 
-  // Calculate insights (4 key data points)
-  const calculateInsights = () => {
-    if (last28Days.length < 2) return null;
-    
-    const startWeight = last28Days[0].maxWeight;
-    const currentWeight = last28Days[last28Days.length - 1].maxWeight;
-    const weightChange = currentWeight - startWeight;
-    const percentChange = ((weightChange / startWeight) * 100).toFixed(1);
-    
-    // Calculate peak weight
-    const peakWeight = Math.max(...last28Days.map(d => d.maxWeight));
-    const peakDate = last28Days.find(d => d.maxWeight === peakWeight)?.date;
-    const formattedPeakDate = peakDate ? new Date(peakDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
-    
-    // Calculate weekly rate of change
-    const weightsByWeek: number[] = [];
-    const weeksCount = Math.min(4, Math.floor(last28Days.length / 7));
-    
-    for (let i = 0; i < weeksCount; i++) {
-      const weekData = last28Days.slice(i * 7, (i + 1) * 7);
-      if (weekData.length > 0) {
-        const weekAvg = weekData.reduce((sum, d) => sum + d.maxWeight, 0) / weekData.length;
-        weightsByWeek.push(Number(weekAvg.toFixed(1)));
-      }
-    }
-    
-    // Calculate weekly change rate (if we have at least 2 weeks of data)
-    const weeklyChangeRate = weightsByWeek.length >= 2 
-      ? ((weightsByWeek[0] - weightsByWeek[weightsByWeek.length - 1]) / (weightsByWeek.length - 1)).toFixed(1)
-      : "N/A";
-    
-    return {
-      startWeight,
-      currentWeight,
-      weightChange,
-      percentChange,
-      peakWeight,
-      formattedPeakDate,
-      weeklyChangeRate: weeklyChangeRate === "N/A" ? weeklyChangeRate : `${weeklyChangeRate} lbs/week`
-    };
-  };
-  
-  const insights = calculateInsights();
-
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -148,7 +103,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         />
       </CardHeader>
       <CardContent className="h-[calc(100%-60px)]">
-        <div className="h-52 mb-3">
+        <div className="h-[calc(100%-40px)]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
@@ -186,7 +141,7 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         </div>
         
         {/* Legend/Index for colors */}
-        <div className="flex items-center justify-center mb-3 gap-6">
+        <div className="flex items-center justify-center mt-3 gap-6">
           <div className="flex items-center">
             <span className="inline-block w-3 h-3 bg-fitness-primary mr-2 rounded-sm"></span>
             <span className="text-xs">Weight (lbs)</span>
@@ -196,41 +151,6 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
             <span className="text-xs">7-day Average</span>
           </div>
         </div>
-        
-        {insights && (
-          <div className="mt-3 pt-2 border-t border-border">
-            <h4 className="text-sm font-medium mb-1">Key Insights</h4>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="py-1 font-medium text-xs">Overall Change</TableCell>
-                  <TableCell className="py-1 text-xs flex items-center justify-end">
-                    <span className="mr-1">{insights.weightChange > 0 ? '+' : ''}{insights.weightChange} lbs ({insights.percentChange}%)</span>
-                    {insights.weightChange > 0 ? (
-                      <ArrowUpIcon className="h-3 w-3 text-green-500" />
-                    ) : insights.weightChange < 0 ? (
-                      <ArrowDownIcon className="h-3 w-3 text-red-500" />
-                    ) : (
-                      <MinusIcon className="h-3 w-3 text-yellow-500" />
-                    )}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="py-1 font-medium text-xs">Weekly Rate</TableCell>
-                  <TableCell className="py-1 text-xs text-right">{insights.weeklyChangeRate}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="py-1 font-medium text-xs">Peak Weight</TableCell>
-                  <TableCell className="py-1 text-xs text-right">{insights.peakWeight} lbs on {insights.formattedPeakDate}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="py-1 font-medium text-xs">Current / Start</TableCell>
-                  <TableCell className="py-1 text-xs text-right">{insights.currentWeight} lbs / {insights.startWeight} lbs</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

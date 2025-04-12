@@ -32,28 +32,28 @@ export const useExerciseActions = (
       const timerId = `${exerciseIndex}-${setIndex}`;
       
       if (setIndex < updatedLogs[exerciseIndex].sets.length - 1 || updatedSets.length === 1) {
-        setActiveRestTimers(prev => ({ ...prev, [timerId]: true }));
+        // Create a new object instead of using a callback function
+        const updatedTimers = { ...activeRestTimers, [timerId]: true };
+        setActiveRestTimers(updatedTimers);
         console.log(`Starting rest timer for ${timerId}`);
       }
     }
     
     if (field === 'completed' && value === false) {
       const timerId = `${exerciseIndex}-${setIndex}`;
-      setActiveRestTimers(prev => {
-        const updated = { ...prev };
-        delete updated[timerId];
-        return updated;
-      });
+      // Create a new object instead of using a callback function
+      const updatedTimers = { ...activeRestTimers };
+      delete updatedTimers[timerId];
+      setActiveRestTimers(updatedTimers);
       console.log(`Removing rest timer for ${timerId}`);
     }
   };
   
   const handleRestTimerComplete = (timerId: string) => {
-    setActiveRestTimers(prev => {
-      const updated = { ...prev };
-      delete updated[timerId];
-      return updated;
-    });
+    // Create a new object instead of using a callback function
+    const updatedTimers = { ...activeRestTimers };
+    delete updatedTimers[timerId];
+    setActiveRestTimers(updatedTimers);
     console.log(`Rest timer complete for ${timerId}`);
     toast.info("Rest period complete! Start your next set.");
   };
@@ -79,11 +79,10 @@ export const useExerciseActions = (
     const lastSetIndex = updatedSets.length - 2;
     if (lastSetIndex >= 0) {
       const timerId = `${exerciseIndex}-${lastSetIndex}`;
-      setActiveRestTimers(prev => {
-        const updated = { ...prev };
-        delete updated[timerId];
-        return updated;
-      });
+      // Create a new object instead of using a callback function
+      const updatedTimers = { ...activeRestTimers };
+      delete updatedTimers[timerId];
+      setActiveRestTimers(updatedTimers);
       console.log(`Removing rest timer when adding new set: ${timerId}`);
     }
     

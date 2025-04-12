@@ -9,7 +9,7 @@ interface RestTimerProps {
 const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsLeft, setSecondsLeft] = useState(defaultRestTime);
   const [isActive, setIsActive] = useState(true); // Start active by default
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Reset timer when the default time changes
   useEffect(() => {

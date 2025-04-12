@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { Timer as TimerIcon, Pause, Play, SkipForward } from "lucide-react";
+import { Pause, Play, SkipForward } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface RestTimerProps {
@@ -74,10 +74,6 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   return (
     <div className="flex flex-col gap-1 text-xs">
       <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          <TimerIcon className="h-3 w-3 text-orange-500 mr-1" />
-          <span className="font-medium text-orange-600">{formatTime()}</span>
-        </div>
         <button 
           onClick={handlePauseResume}
           className="text-xs text-muted-foreground hover:text-foreground"

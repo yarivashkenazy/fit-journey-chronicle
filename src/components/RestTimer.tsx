@@ -1,6 +1,5 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Pause, Play, SkipForward, Check } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface RestTimerProps {
   defaultRestTime: number; // in seconds
@@ -57,6 +56,7 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
   
+  // Skip and pause/resume functions are still here but not used in the UI
   const handleSkip = () => {
     setSecondsLeft(0);
     setIsActive(false);
@@ -67,12 +67,11 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     setIsActive(!isActive);
   };
   
-  // Calculate progress percentage for visual indicator
-  const progressPercentage = (secondsLeft / defaultRestTime) * 100;
-  
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span className="text-orange-500 font-medium">{formatTime()}</span>
+      <span className="text-orange-500 font-medium animate-pulse">
+        {formatTime()}
+      </span>
     </div>
   );
 };

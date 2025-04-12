@@ -9,63 +9,54 @@ interface RestTimerProps {
 const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsLeft, setSecondsLeft] = useState(defaultRestTime);
   const [isActive, setIsActive] = useState(true); // Start active by default
-  const timerRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+  const intervalRef = useRef<number | null>(null);
   
   // Reset timer when the default time changes
   useEffect(() => {
     setSecondsLeft(defaultRestTime);
     setIsActive(true); // Always start active when timer is reset
-    startTimeRef.current = Date.now();
   }, [defaultRestTime]);
   
-  // Timer countdown effect with accurate timing
+  // Timer countdown effect
   useEffect(() => {
     if (!isActive || secondsLeft <= 0) return;
     
     // Clear any existing timer
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
     }
     
-    startTimeRef.current = Date.now();
+    const startTime = Date.now();
+    const initialSeconds = secondsLeft;
     
-    // Create a new timer that updates every 100ms for smoother countdown
-    timerRef.current = window.setInterval(() => {
-      const elapsedSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    // Create a new timer that updates every second
+    intervalRef.current = window.setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const newValue = initialSeconds - elapsed;
       
-      if (elapsedSeconds > 0) {
-        setSecondsLeft(prevSeconds => {
-          const newValue = defaultRestTime - elapsedSeconds;
-          
-          if (newValue <= 0) {
-            // Clear the interval when we reach 0
-            if (timerRef.current) {
-              window.clearInterval(timerRef.current);
-              timerRef.current = null;
-            }
-            
-            // Call onComplete in the next tick
-            setTimeout(() => onComplete(), 0);
-            return 0;
-          }
-          
-          return newValue;
-        });
+      if (newValue <= 0) {
+        // Clear the interval when we reach 0
+        if (intervalRef.current) {
+          window.clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         
-        // Update the start time to prevent drift
-        startTimeRef.current = Date.now() - (elapsedSeconds % 1) * 1000;
+        setSecondsLeft(0);
+        // Call onComplete in the next tick
+        setTimeout(() => onComplete(), 0);
+      } else {
+        setSecondsLeft(newValue);
       }
-    }, 100); // Update every 100ms for smoother countdown
+    }, 1000); // Update every second
     
     // Clean up interval on component unmount or when timer becomes inactive
     return () => {
-      if (timerRef.current) {
-        window.clearInterval(timerRef.current);
-        timerRef.current = null;
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [isActive, onComplete, secondsLeft, defaultRestTime]);
+  }, [isActive, onComplete, defaultRestTime]);
   
   const formatTime = () => {
     const minutes = Math.floor(secondsLeft / 60);

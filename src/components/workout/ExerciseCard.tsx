@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Check, Info, Trash, Clock, GripVertical } from "lucide-react";
@@ -23,7 +22,6 @@ interface ExerciseCardProps {
   onRemoveExercise: (exerciseIndex: number) => void;
   activeRestTimers: Record<string, boolean>;
   onRestTimerComplete: (timerId: string) => void;
-  // New props for drag and drop
   onDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
   onDragEnter: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
   onDragEnd: () => void;
@@ -147,7 +145,6 @@ const ExerciseCard = ({
                       variant={set.completed ? "default" : "outline"}
                       className={`h-8 w-8 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
                       onClick={() => {
-                        // Mark as completed and start timer automatically
                         if (!set.completed) {
                           onSetChange(exerciseIndex, setIndex, 'completed', true);
                         } else {
@@ -158,7 +155,6 @@ const ExerciseCard = ({
                       {set.completed ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                     </Button>
                     
-                    {/* Inline rest timer */}
                     {showRestTimer && exercise && (
                       <RestTimer 
                         defaultRestTime={exercise.defaultRestPeriod || 60} 

@@ -9,12 +9,12 @@ interface RestTimerProps {
 
 const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const [secondsLeft, setSecondsLeft] = useState(defaultRestTime);
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(true); // Start active by default
   
   // Reset timer when the default time changes
   useEffect(() => {
     setSecondsLeft(defaultRestTime);
-    setIsActive(true);
+    setIsActive(true); // Always start active when timer is reset
   }, [defaultRestTime]);
   
   // Timer countdown effect

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Pause, Play, SkipForward } from "lucide-react";
 
@@ -70,22 +69,8 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   // Calculate progress percentage for visual indicator
   const progressPercentage = (secondsLeft / defaultRestTime) * 100;
   
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <button 
-        onClick={handlePauseResume}
-        className="text-xs text-muted-foreground hover:text-foreground"
-      >
-        {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-      </button>
-      <button 
-        onClick={handleSkip}
-        className="text-xs text-muted-foreground hover:text-foreground"
-      >
-        <SkipForward className="h-3 w-3" />
-      </button>
-    </div>
-  );
+  // Return null - completely removing the visual component while keeping timer functionality
+  return null;
 };
 
 export default RestTimer;

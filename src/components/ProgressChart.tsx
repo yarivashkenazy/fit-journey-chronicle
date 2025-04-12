@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutStats } from "@/types/workout";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -13,9 +13,25 @@ interface ProgressChartProps {
 }
 
 const ProgressChart = ({ stats }: ProgressChartProps) => {
-  const [selectedExerciseId, setSelectedExerciseId] = useState<string | undefined>(
-    stats.exerciseProgress[0]?.exerciseId
-  );
+  // Find Bench Press exercise index if it exists
+  const benchPressIndex = stats.exerciseProgress.findIndex(ex => ex.exerciseName === "Bench Press");
+  
+  // Set default selected exercise to Bench Press if available, otherwise use first exercise
+  const defaultExerciseId = benchPressIndex !== -1 
+    ? stats.exerciseProgress[benchPressIndex].exerciseId 
+    : stats.exerciseProgress[0]?.exerciseId;
+  
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string | undefined>(defaultExerciseId);
+  
+  // Update selected exercise when stats change
+  useEffect(() => {
+    const benchPressIndex = stats.exerciseProgress.findIndex(ex => ex.exerciseName === "Bench Press");
+    const defaultExerciseId = benchPressIndex !== -1 
+      ? stats.exerciseProgress[benchPressIndex].exerciseId 
+      : stats.exerciseProgress[0]?.exerciseId;
+    
+    setSelectedExerciseId(defaultExerciseId);
+  }, [stats]);
 
   // Find the exercise data based on selection
   const exerciseData = selectedExerciseId

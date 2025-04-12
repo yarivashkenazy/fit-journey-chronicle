@@ -54,16 +54,10 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
     };
   }, [isActive, onComplete, secondsLeft]);
   
-  const formatTime = () => {
-    const minutes = Math.floor(secondsLeft / 60);
-    const seconds = secondsLeft % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-  
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="text-orange-500 font-medium animate-pulse">
-        {formatTime()}
+        {secondsLeft}s
       </span>
     </div>
   );

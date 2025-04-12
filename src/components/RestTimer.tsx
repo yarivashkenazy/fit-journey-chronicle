@@ -19,33 +19,33 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   
   // Timer countdown effect
   useEffect(() => {
-    if (!isActive || secondsLeft <= 0) return;
-    
-    // Clear any existing timer
+    // Clean up existing interval first
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     
-    // Create a new timer that updates every second
-    intervalRef.current = setInterval(() => {
-      setSecondsLeft(prev => {
-        if (prev <= 1) {
-          // Clear the interval when we reach 0
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
+    // Only start a new interval if the timer is active and there's time left
+    if (isActive && secondsLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            // Clear interval when reaching zero
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            
+            // Call onComplete callback
+            onComplete();
+            return 0;
           }
-          
-          // Call onComplete in the next tick
-          setTimeout(onComplete, 0);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+          return prev - 1;
+        });
+      }, 1000);
+    }
     
-    // Clean up interval on component unmount or when timer becomes inactive
+    // Clean up on unmount or when dependencies change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, CalendarIcon, RefreshCw } from "lucide-react";
+import { Activity, RefreshCw } from "lucide-react";
 import StatsCard from "@/components/StatsCard";
 import ProgressChart from "@/components/ProgressChart";
 import WeeklyProgress from "@/components/WeeklyProgress";
@@ -66,7 +66,13 @@ const Dashboard = () => {
     <div className="container py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-4 items-center">
+          <WeeklyProgress 
+            current={weeklyGoal.current} 
+            target={weeklyGoal.target} 
+            percentage={weeklyGoal.percentage}
+            compact={true}
+          />
           <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
@@ -75,17 +81,11 @@ const Dashboard = () => {
       </div>
       
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-1">
         <StatsCard 
           title="Total Workouts"
           value={stats.totalWorkouts}
           icon={<Activity className="h-4 w-4" />}
-        />
-        <StatsCard 
-          title="This Week"
-          value={`${weeklyGoal.current}/${weeklyGoal.target || 'N/A'}`}
-          icon={<CalendarIcon className="h-4 w-4" />}
-          description={weeklyGoal.target ? `${weeklyGoal.percentage}% of goal` : 'No goal set'}
         />
       </div>
       
@@ -114,15 +114,12 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="space-y-6">
           <ProgressChart stats={stats} />
-          <WeeklyProgress 
-            current={weeklyGoal.current} 
-            target={weeklyGoal.target} 
-            percentage={weeklyGoal.percentage} 
-          />
         </div>
-        <div className="space-y-6">
-          <ActivityCalendar />
-          <GoalSetting onGoalUpdate={handleRefresh} />
+        <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <ActivityCalendar />
+            <GoalSetting onGoalUpdate={handleRefresh} />
+          </div>
         </div>
       </div>
     </div>

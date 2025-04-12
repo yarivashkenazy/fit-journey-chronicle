@@ -50,32 +50,35 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <Card className="h-full">
+      <CardHeader className="pb-2">
         <CardTitle className="text-lg">Set Goals</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between mb-1">
-            <span className="text-sm">Weekly target workouts</span>
-            <Badge variant="outline">{targetFrequency}</Badge>
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <div className="flex justify-between mb-1">
+              <span className="text-sm">Weekly workouts</span>
+              <Badge variant="outline">{targetFrequency}</Badge>
+            </div>
+            <Input
+              type="number"
+              min={1}
+              max={7}
+              value={targetFrequency}
+              onChange={handleFrequencyChange}
+              className="h-8"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Min: 1</span>
+              <span>Max: 7</span>
+            </div>
           </div>
-          <Input
-            type="number"
-            min={1}
-            max={7}
-            value={targetFrequency}
-            onChange={handleFrequencyChange}
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Min: 1</span>
-            <span>Max: 7</span>
-          </div>
+          
+          <Button className="w-full" size="sm" onClick={handleSaveGoal}>
+            Save Goals
+          </Button>
         </div>
-        
-        <Button className="w-full" onClick={handleSaveGoal}>
-          Save Goals
-        </Button>
       </CardContent>
     </Card>
   );

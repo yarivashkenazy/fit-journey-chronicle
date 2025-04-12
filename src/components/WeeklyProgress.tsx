@@ -6,9 +6,22 @@ interface WeeklyProgressProps {
   current: number;
   target: number;
   percentage: number;
+  compact?: boolean;
 }
 
-const WeeklyProgress = ({ current, target, percentage }: WeeklyProgressProps) => {
+const WeeklyProgress = ({ current, target, percentage, compact = false }: WeeklyProgressProps) => {
+  if (compact) {
+    return (
+      <div className="bg-card rounded-lg border shadow-sm px-3 py-2 min-w-40">
+        <div className="flex justify-between items-center mb-1">
+          <p className="text-sm font-medium">Weekly Goal</p>
+          <p className="text-sm font-medium">{current}/{target}</p>
+        </div>
+        <Progress value={percentage} className="h-2" />
+      </div>
+    );
+  }
+  
   return (
     <Card>
       <CardHeader>

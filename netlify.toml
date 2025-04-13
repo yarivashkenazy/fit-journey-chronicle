@@ -26,6 +26,12 @@
     Content-Type = "application/javascript"
     Service-Worker-Allowed = "/"
 
+# Handle API responses
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Content-Type = "application/json"
+
 # Handle other assets
 [[headers]]
   for = "/*"
@@ -33,4 +39,4 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [build.environment]
-  VITE_API_URL = "/.netlify/functions" 
+  VITE_API_URL = "/api" 

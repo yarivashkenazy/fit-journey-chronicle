@@ -89,12 +89,19 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
   try {
-    console.log('Fetching workout:', `${API_URL}/${workoutId}`);
-    const response = await fetch(`${API_URL}/${workoutId}`);
+    console.log('Fetching workout:', `${API_URL}/workouts/${workoutId}`);
+    const response = await fetch(`${API_URL}/workouts/${workoutId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
     if (!response.ok) {
       console.error('Workout fetch failed:', response.status, response.statusText);
       return null;
     }
+    
     return handleResponse(response);
   } catch (error) {
     console.error('Error fetching workout:', error);
@@ -104,10 +111,10 @@ export const getWorkout = async (workoutId: string): Promise<Workout | null> => 
 
 export const fetchWorkout = async (workoutId: string): Promise<Workout> => {
   console.log('Fetching workout with ID:', workoutId);
-  console.log('API URL:', `${API_URL}/${workoutId}`);
+  console.log('API URL:', `${API_URL}/workouts/${workoutId}`);
   
   try {
-    const response = await fetch(`${API_URL}/${workoutId}`, {
+    const response = await fetch(`${API_URL}/workouts/${workoutId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -79,14 +79,21 @@ const handler: Handler = async (event, context) => {
             return {
               statusCode: 404,
               headers,
-              body: JSON.stringify({ error: 'Workout not found' }),
+              body: JSON.stringify({ 
+                success: false,
+                error: 'Workout not found',
+                message: 'The requested workout could not be found'
+              }),
             };
           }
           
           return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(workout),
+            body: JSON.stringify({ 
+              success: true,
+              data: workout
+            }),
           };
         } else {
           // Handle all default workouts
@@ -149,14 +156,21 @@ const handler: Handler = async (event, context) => {
           return {
             statusCode: 404,
             headers,
-            body: JSON.stringify({ error: 'Workout not found' }),
+            body: JSON.stringify({ 
+              success: false,
+              error: 'Workout not found',
+              message: 'The requested workout could not be found'
+            }),
           };
         }
         
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify(workout),
+          body: JSON.stringify({ 
+            success: true,
+            data: workout
+          }),
         };
       }
     }

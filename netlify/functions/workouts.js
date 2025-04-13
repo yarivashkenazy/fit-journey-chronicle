@@ -36,7 +36,10 @@ exports.handler = async function(event, context) {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*"
           },
-          body: JSON.stringify(workout)
+          body: JSON.stringify({ 
+            success: true,
+            data: workout
+          })
         };
       }
       
@@ -50,7 +53,10 @@ exports.handler = async function(event, context) {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*"
           },
-          body: JSON.stringify(workoutAlt)
+          body: JSON.stringify({ 
+            success: true,
+            data: workoutAlt
+          })
         };
       }
       
@@ -66,7 +72,11 @@ exports.handler = async function(event, context) {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
         },
-        body: JSON.stringify({ error: "Workout not found" })
+        body: JSON.stringify({ 
+          success: false,
+          error: "Workout not found",
+          message: "The requested workout could not be found in the database"
+        })
       };
     }
     
@@ -81,19 +91,39 @@ exports.handler = async function(event, context) {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
         },
-        body: JSON.stringify({ logs })
+        body: JSON.stringify({ 
+          success: true,
+          data: { logs }
+        })
       };
     }
     
     // Handle save workout log
     else if (event.httpMethod === 'POST' && endpoint === 'save') {
       const logsCollection = database.collection("workout-logs");
-      const workoutLog = JSON.parse(event.body);
       
-      // Remove null _id if present
-      if (workoutLog._id === null) {
-        delete workoutLog._id;
+      // Parse the request body with error handling
+      let workoutLog;
+      try {
+        workoutLog = JSON.parse(event.body);
+      } catch (error) {
+        console.error("Error parsing request body:", error);
+        return {
+          statusCode: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          },
+          body: JSON.stringify({ 
+            success: false,
+            error: "Invalid request body",
+            message: "The request body could not be parsed as JSON"
+          })
+        };
       }
+      
+      // Remove _id if present (MongoDB will generate a new one)
+      delete workoutLog._id;
       
       // Ensure we have a valid date
       if (!workoutLog.date) {
@@ -111,6 +141,9 @@ exports.handler = async function(event, context) {
         const result = await logsCollection.insertOne(workoutLog);
         console.log("Save result:", result);
         
+        // Get the saved document with the generated _id
+        const savedLog = await logsCollection.findOne({ _id: result.insertedId });
+        
         return {
           statusCode: 200,
           headers: {
@@ -119,7 +152,7 @@ exports.handler = async function(event, context) {
           },
           body: JSON.stringify({ 
             success: true,
-            insertedId: result.insertedId
+            data: savedLog
           })
         };
       } catch (error) {
@@ -131,8 +164,9 @@ exports.handler = async function(event, context) {
             "Access-Control-Allow-Origin": "*"
           },
           body: JSON.stringify({ 
-            error: "Failed to save workout log",
-            message: error.message
+            success: false,
+            error: "Database error",
+            message: "Failed to save workout log to the database"
           })
         };
       }
@@ -147,7 +181,11 @@ exports.handler = async function(event, context) {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
         },
-        body: JSON.stringify({ error: "Unknown endpoint" })
+        body: JSON.stringify({ 
+          success: false,
+          error: "Not found",
+          message: "The requested endpoint does not exist"
+        })
       };
     }
   } catch (error) {
@@ -159,9 +197,9 @@ exports.handler = async function(event, context) {
         "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({ 
-        error: "Server error", 
-        message: error.message,
-        stack: error.stack
+        success: false,
+        error: "Server error",
+        message: "An unexpected error occurred on the server"
       })
     };
   } finally {

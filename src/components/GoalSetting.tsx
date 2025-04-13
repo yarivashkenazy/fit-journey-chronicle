@@ -85,16 +85,6 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
 
         <div className="mt-auto pt-4 space-y-4">
           <div className="rounded-lg bg-muted/50 p-3 text-sm">
-            <div className="flex gap-2 items-start">
-              <Info className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <div>
-                <p className="font-medium mb-1">About Weekly Goals</p>
-                <p className="text-muted-foreground text-xs">Setting a weekly workout goal helps track your consistency and build healthy habits.</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="rounded-lg bg-muted/50 p-3 text-sm">
             <p className="font-medium mb-1">Tips for Success</p>
             <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
               <li>Start with achievable goals</li>

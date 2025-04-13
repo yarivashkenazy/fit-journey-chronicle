@@ -50,12 +50,12 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-auto">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Set Goals</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 flex flex-col h-[calc(100%-60px)]">
-        <div className="space-y-4">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
           <div>
             <div className="flex justify-between mb-1">
               <span className="text-sm">Weekly workouts</span>

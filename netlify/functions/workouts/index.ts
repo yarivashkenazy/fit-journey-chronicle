@@ -2,7 +2,8 @@ import { Handler } from '@netlify/functions';
 import { getDefaultWorkouts, saveDefaultWorkout, getCustomWorkouts, saveCustomWorkout, getWorkoutLogs, saveWorkoutLog, getWorkout } from '../../../src/utils/mongodbService';
 
 const handler: Handler = async (event, context) => {
-  console.log('Function invoked with event:', {
+  console.log('=== Function Invocation Start ===');
+  console.log('Event:', {
     path: event.path,
     httpMethod: event.httpMethod,
     queryStringParameters: event.queryStringParameters,
@@ -171,6 +172,8 @@ const handler: Handler = async (event, context) => {
       headers,
       body: JSON.stringify({ error: 'Internal server error' }),
     };
+  } finally {
+    console.log('=== Function Invocation End ===');
   }
 };
 

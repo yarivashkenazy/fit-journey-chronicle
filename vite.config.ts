@@ -43,6 +43,12 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/.netlify/],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: [
+          '**/node_modules/**/*',
+          'sw.js',
+          'workbox-*.js'
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -89,7 +95,13 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@radix-ui/react-*']
+          ui: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-label',
+            '@radix-ui/react-dropdown-menu'
+          ]
         }
       }
     }

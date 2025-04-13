@@ -1,4 +1,5 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, WithId, Document } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { Workout, WorkoutLog } from '@/types/workout';
 
 // Get MongoDB URI from environment variables
@@ -130,26 +131,31 @@ export const getWorkout = async (id: string): Promise<Workout | null> => {
   console.log('Searching for workout with ID:', id);
   const db = await getDatabase();
   
-  // First check custom workouts
-  console.log('Checking custom workouts collection');
-  const customWorkout = await db.collection<Workout>('customWorkouts').findOne({ id });
-  console.log('Custom workout result:', customWorkout);
+  // Use the correct database and collection names
+  console.log('Checking collection: fit-journey-chronicle in database: default-workouts');
   
-  if (customWorkout) {
-    console.log('Found workout in custom workouts');
-    return customWorkout;
+  // Try to convert the id to ObjectId if it's a valid ObjectId string
+  let objectId;
+  try {
+    objectId = new ObjectId(id);
+  } catch (e) {
+    objectId = null;
   }
   
-  // Then check default workouts
-  console.log('Checking default workouts collection');
-  const defaultWorkout = await db.collection<Workout>('defaultWorkouts').findOne({ id });
-  console.log('Default workout result:', defaultWorkout);
+  const workout = await db.collection<Workout>('fit-journey-chronicle').findOne({ 
+    $or: [
+      { id: id },
+      ...(objectId ? [{ _id: objectId }] : [])
+    ]
+  });
   
-  if (defaultWorkout) {
-    console.log('Found workout in default workouts');
-    return defaultWorkout;
+  console.log('Query result:', workout);
+  
+  if (!workout) {
+    console.log('Workout not found');
+    return null;
   }
   
-  console.log('Workout not found in either collection');
-  return null;
+  console.log('Found workout:', workout);
+  return workout;
 }; 

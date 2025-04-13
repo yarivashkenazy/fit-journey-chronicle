@@ -6,10 +6,29 @@
 [functions]
   included_files = ["src/utils/mongodbService.ts"]
 
+# Handle SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Handle API routes
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
 [build.environment]
-  VITE_API_URL = "/.netlify/functions" 
+  VITE_API_URL = "/.netlify/functions"
+
+# Ensure proper caching for assets
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Handle service worker
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache" 

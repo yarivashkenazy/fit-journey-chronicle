@@ -6,6 +6,7 @@ import { componentTagger } from "lovable-tagger"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/',
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
@@ -40,6 +41,8 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/, /^\/.netlify/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -69,30 +72,30 @@ export default defineConfig(({ mode }) => ({
               }
             }
           }
-        ],
-        maximumFileSizeToCacheInBytes: 3000000,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+        ]
       }
     })
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./src"),
-    },
+      '@': resolve(__dirname, './src')
+    }
   },
-  server: {
-    port: 8080
-  },
-  base: './',
   build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: mode === 'development',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-toast'],
-          utils: ['date-fns', 'uuid', 'sonner']
+          ui: ['@radix-ui/react-*']
         }
       }
     }
+  },
+  server: {
+    port: 3000,
+    open: true
   }
 }))

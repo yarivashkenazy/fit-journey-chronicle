@@ -31,6 +31,202 @@ interface ExerciseCardProps {
   draggedIndex: number | null;
 }
 
+// State management for a single set
+const useSetState = (
+  exerciseIndex: number,
+  setIndex: number,
+  onSetChange: (exerciseIndex: number, setIndex: number, field: keyof Set, value: any) => void
+) => {
+  const handleStateTransition = (newState: Partial<Set>) => {
+    console.log(`[useSetState ${exerciseIndex}-${setIndex}] Starting state transition:`, newState);
+    
+    Object.entries(newState).forEach(([field, value]) => {
+      console.log(`[useSetState ${exerciseIndex}-${setIndex}] Updating field ${field} to:`, value);
+      onSetChange(exerciseIndex, setIndex, field as keyof Set, value);
+    });
+    
+    console.log(`[useSetState ${exerciseIndex}-${setIndex}] State transition complete`);
+  };
+
+  return {
+    handleStateTransition
+  };
+};
+
+// Component for the set action button
+const SetActionButton = ({ 
+  set, 
+  isTimerActive, 
+  onClick 
+}: { 
+  set: Set; 
+  isTimerActive: boolean; 
+  onClick: () => void;
+}) => {
+  return (
+    <motion.div
+      className="relative"
+      whileHover={{ scale: 1.05, rotate: 5 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <Button
+        size="icon"
+        variant="outline"
+        className={`h-8 w-8 relative overflow-hidden glass-card ${
+          set.completed 
+            ? 'bg-green-500/20 hover:bg-green-500/30 border-green-500' 
+            : ''
+        }`}
+        onClick={onClick}
+      >
+        <AnimatePresence mode="wait">
+          {set.completed ? (
+            <motion.div
+              key="check"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Check className="h-4 w-4 text-green-500" />
+            </motion.div>
+          ) : isTimerActive ? (
+            <motion.div
+              key="fast-forward"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              <FastForward className="h-4 w-4 text-orange-500" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="clock"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Button>
+    </motion.div>
+  );
+};
+
+// Component for a single set row
+const SetRow = ({ 
+  set, 
+  setIndex, 
+  exerciseIndex, 
+  exercise, 
+  onSetChange, 
+  onRestTimerComplete 
+}: { 
+  set: Set; 
+  setIndex: number; 
+  exerciseIndex: number; 
+  exercise?: Exercise; 
+  onSetChange: (exerciseIndex: number, setIndex: number, field: keyof Set, value: any) => void;
+  onRestTimerComplete: (timerId: string) => void;
+}) => {
+  const timerId = `${exerciseIndex}-${setIndex}`;
+  const isTimerActive = set.timerActive || false;
+
+  const handleSetClick = () => {
+    HapticPattern.light();
+    SoundEffect.click();
+    
+    if (!set.completed && !set.timerActive) {
+      // Start timer
+      onSetChange(exerciseIndex, setIndex, 'timerActive', true);
+    } else if (set.timerActive) {
+      // Complete set
+      onSetChange(exerciseIndex, setIndex, 'completed', true);
+      onSetChange(exerciseIndex, setIndex, 'timerActive', false);
+      onRestTimerComplete(timerId);
+      SoundEffect.complete();
+    } else if (set.completed) {
+      // Reset set
+      onSetChange(exerciseIndex, setIndex, 'completed', false);
+      SoundEffect.reset();
+    }
+  };
+
+  return (
+    <motion.div
+      key={set.id}
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-2"
+    >
+      <div className={`grid grid-cols-12 gap-2 items-center rounded-md p-1 ${
+        set.completed ? 'bg-green-50/10' : ''
+      }`}>
+        <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
+        <div className="col-span-4">
+          <div className="relative">
+            <Input
+              type="number"
+              value={set.weight || ''}
+              onChange={(e) => onSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
+              className={`modern-input pl-2 pr-8 ${
+                set.completed 
+                  ? 'border-green-500 bg-green-50/10' 
+                  : isTimerActive 
+                    ? 'border-orange-500 bg-orange-50/10' 
+                    : ''
+              }`}
+            />
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+              kg
+            </span>
+          </div>
+        </div>
+        <div className="col-span-4">
+          <Input
+            type="number"
+            value={set.reps || ''}
+            onChange={(e) => onSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
+            className={`modern-input ${
+              set.completed 
+                ? 'border-green-500 bg-green-50/10' 
+                : isTimerActive 
+                  ? 'border-orange-500 bg-orange-50/10' 
+                  : ''
+            }`}
+          />
+        </div>
+        <div className="col-span-3 flex items-center gap-2">
+          <SetActionButton 
+            set={set} 
+            isTimerActive={isTimerActive} 
+            onClick={handleSetClick} 
+          />
+          
+          {isTimerActive && (
+            <RestTimer 
+              key={timerId}
+              defaultRestTime={exercise?.defaultRestPeriod || 60} 
+              onComplete={() => {
+                onSetChange(exerciseIndex, setIndex, 'completed', true);
+                onSetChange(exerciseIndex, setIndex, 'timerActive', false);
+                onRestTimerComplete(timerId);
+                SoundEffect.complete();
+              }} 
+            />
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const ExerciseCard = ({
   exerciseLog,
   exercise,
@@ -49,28 +245,6 @@ const ExerciseCard = ({
   const isBeingDragged = draggedIndex === exerciseIndex;
   const dragClass = isBeingDragged ? "opacity-50" : "";
   const dropTargetClass = isDragging && !isBeingDragged ? "border-dashed border-2 border-fitness-primary/50" : "";
-
-  const handleSetClick = (setIndex: number, timerId: string) => {
-    HapticPattern.light();
-    SoundEffect.click();
-    
-    const currentSet = exerciseLog.sets[setIndex];
-    
-    if (!currentSet.completed && !currentSet.timerActive) {
-      // Start timer
-      onSetChange(exerciseIndex, setIndex, 'timerActive', true);
-    } else if (currentSet.timerActive) {
-      // Complete set and stop timer
-      onSetChange(exerciseIndex, setIndex, 'completed', true);
-      onSetChange(exerciseIndex, setIndex, 'timerActive', false);
-      onRestTimerComplete(timerId);
-      SoundEffect.complete();
-    } else if (currentSet.completed) {
-      // Reset set
-      onSetChange(exerciseIndex, setIndex, 'completed', false);
-      onSetChange(exerciseIndex, setIndex, 'timerActive', false);
-    }
-  };
 
   return (
     <motion.div
@@ -160,123 +334,17 @@ const ExerciseCard = ({
               <div className="col-span-3"></div>
             </div>
             
-            {exerciseLog.sets.map((set, setIndex) => {
-              const timerId = `${exerciseIndex}-${setIndex}`;
-              const isTimerActive = set.timerActive || false;
-              
-              return (
-                <motion.div
-                  key={set.id}
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-2"
-                >
-                  <div className="grid grid-cols-12 gap-2 items-center rounded-md p-1">
-                    <div className="col-span-1 text-sm font-medium">{setIndex + 1}</div>
-                    <div className="col-span-4">
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          value={set.weight || ""}
-                          onChange={(e) => onSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
-                          className={`modern-input pl-2 pr-8 ${
-                            set.completed 
-                              ? 'border-green-500 bg-green-50/10' 
-                              : isTimerActive 
-                                ? 'border-orange-500 bg-orange-50/10' 
-                                : ''
-                          }`}
-                        />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                          kg
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-span-4">
-                      <Input
-                        type="number"
-                        value={set.reps || ""}
-                        onChange={(e) => onSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
-                        className={`modern-input ${
-                          set.completed 
-                            ? 'border-green-500 bg-green-50/10' 
-                            : isTimerActive 
-                              ? 'border-orange-500 bg-orange-50/10' 
-                              : ''
-                        }`}
-                      />
-                    </div>
-                    <div className="col-span-3 flex items-center gap-2">
-                      <motion.div
-                        className="relative"
-                        whileHover={{ scale: 1.05, rotate: 5 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className={`h-8 w-8 relative overflow-hidden glass-card ${
-                            set.completed 
-                              ? 'bg-green-500/20 hover:bg-green-500/30 border-green-500' 
-                              : ''
-                          }`}
-                          onClick={() => handleSetClick(setIndex, timerId)}
-                        >
-                          <AnimatePresence mode="wait">
-                            {set.completed ? (
-                              <motion.div
-                                key="check"
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                exit={{ scale: 0, rotate: 180 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <Check className="h-4 w-4 text-green-500" />
-                              </motion.div>
-                            ) : isTimerActive ? (
-                              <motion.div
-                                key="fast-forward"
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                exit={{ scale: 0, rotate: 180 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <FastForward className="h-4 w-4 text-orange-500" />
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                key="clock"
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                exit={{ scale: 0, rotate: 180 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </Button>
-                      </motion.div>
-                      
-                      {isTimerActive && (
-                        <RestTimer 
-                          key={timerId}
-                          defaultRestTime={exercise?.defaultRestPeriod || 60} 
-                          onComplete={() => {
-                            onSetChange(exerciseIndex, setIndex, 'completed', true);
-                            onSetChange(exerciseIndex, setIndex, 'timerActive', false);
-                            onRestTimerComplete(timerId);
-                            SoundEffect.complete();
-                          }} 
-                        />
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {exerciseLog.sets.map((set, setIndex) => (
+              <SetRow
+                key={set.id}
+                set={set}
+                setIndex={setIndex}
+                exerciseIndex={exerciseIndex}
+                exercise={exercise}
+                onSetChange={onSetChange}
+                onRestTimerComplete={onRestTimerComplete}
+              />
+            ))}
             
             <motion.div
               whileHover={{ scale: 1.02, rotate: 2 }}

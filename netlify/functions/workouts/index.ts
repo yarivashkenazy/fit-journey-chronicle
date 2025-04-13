@@ -2,6 +2,13 @@ import { Handler } from '@netlify/functions';
 import { getDefaultWorkouts, saveDefaultWorkout, getCustomWorkouts, saveCustomWorkout, getWorkoutLogs, saveWorkoutLog, getWorkout } from '../../../src/utils/mongodbService';
 
 const handler: Handler = async (event, context) => {
+  console.log('Function invoked with event:', {
+    path: event.path,
+    httpMethod: event.httpMethod,
+    queryStringParameters: event.queryStringParameters,
+    body: event.body,
+  });
+
   // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -12,6 +19,7 @@ const handler: Handler = async (event, context) => {
 
   // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
+    console.log('Handling OPTIONS request');
     return {
       statusCode: 200,
       headers,
@@ -24,95 +32,117 @@ const handler: Handler = async (event, context) => {
     const path = event.path.replace('/.netlify/functions/workouts', '');
     const segments = path.split('/').filter(Boolean); // Remove empty segments
 
-    console.log('Path:', path);
-    console.log('Segments:', segments);
+    console.log('Processing request:', {
+      path,
+      segments,
+      method: event.httpMethod,
+    });
 
     // Handle different endpoints
-    switch (segments[0]) {
-      case 'default':
-        if (event.httpMethod === 'GET') {
-          const workouts = await getDefaultWorkouts();
+    if (segments[0] === 'logs') {
+      console.log('Processing workout logs endpoint');
+      if (event.httpMethod === 'GET') {
+        console.log('Fetching workout logs');
+        const logs = await getWorkoutLogs();
+        console.log('Retrieved workout logs:', logs);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(logs),
+        };
+      } else if (event.httpMethod === 'POST') {
+        console.log('Saving workout log');
+        const workoutLog = JSON.parse(event.body || '{}');
+        console.log('Workout log data:', workoutLog);
+        const savedLog = await saveWorkoutLog(workoutLog);
+        console.log('Saved workout log:', savedLog);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(savedLog),
+        };
+      }
+    } else if (segments[0] === 'default') {
+      console.log('Processing default workouts endpoint');
+      if (event.httpMethod === 'GET') {
+        console.log('Fetching default workouts');
+        const workouts = await getDefaultWorkouts();
+        console.log('Retrieved default workouts:', workouts);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(workouts),
+        };
+      } else if (event.httpMethod === 'POST') {
+        console.log('Saving default workout');
+        const workout = JSON.parse(event.body || '{}');
+        console.log('Workout data:', workout);
+        const savedWorkout = await saveDefaultWorkout(workout);
+        console.log('Saved default workout:', savedWorkout);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(savedWorkout),
+        };
+      }
+    } else if (segments[0] === 'custom') {
+      console.log('Processing custom workouts endpoint');
+      if (event.httpMethod === 'GET') {
+        console.log('Fetching custom workouts');
+        const workouts = await getCustomWorkouts();
+        console.log('Retrieved custom workouts:', workouts);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(workouts),
+        };
+      } else if (event.httpMethod === 'POST') {
+        console.log('Saving custom workout');
+        const workout = JSON.parse(event.body || '{}');
+        console.log('Workout data:', workout);
+        const savedWorkout = await saveCustomWorkout(workout);
+        console.log('Saved custom workout:', savedWorkout);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(savedWorkout),
+        };
+      }
+    } else if (segments.length === 1) {
+      // Handle single workout by ID
+      const workoutId = segments[0];
+      console.log('Processing single workout request for ID:', workoutId);
+      
+      if (event.httpMethod === 'GET') {
+        console.log('Fetching workout by ID');
+        const workout = await getWorkout(workoutId);
+        console.log('Retrieved workout:', workout);
+        
+        if (!workout) {
+          console.log('Workout not found');
           return {
-            statusCode: 200,
+            statusCode: 404,
             headers,
-            body: JSON.stringify(workouts),
-          };
-        } else if (event.httpMethod === 'PUT' && segments[1]) {
-          const workout = JSON.parse(event.body || '{}');
-          await saveDefaultWorkout(workout);
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({ success: true }),
+            body: JSON.stringify({ error: 'Workout not found' }),
           };
         }
-        break;
-
-      case 'custom':
-        if (event.httpMethod === 'GET') {
-          const workouts = await getCustomWorkouts();
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(workouts),
-          };
-        } else if (event.httpMethod === 'PUT' && segments[1]) {
-          const workout = JSON.parse(event.body || '{}');
-          await saveCustomWorkout(workout);
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({ success: true }),
-          };
-        }
-        break;
-
-      case 'logs':
-        if (event.httpMethod === 'GET') {
-          const logs = await getWorkoutLogs();
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(logs),
-          };
-        } else if (event.httpMethod === 'POST') {
-          const log = JSON.parse(event.body || '{}');
-          await saveWorkoutLog(log);
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({ success: true }),
-          };
-        }
-        break;
-
-      default:
-        // Handle direct workout ID requests
-        if (event.httpMethod === 'GET' && segments[0]) {
-          const workout = await getWorkout(segments[0]);
-          if (!workout) {
-            return {
-              statusCode: 404,
-              headers,
-              body: JSON.stringify({ error: 'Workout not found' }),
-            };
-          }
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(workout),
-          };
-        }
-        break;
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(workout),
+        };
+      }
     }
 
+    console.log('No matching endpoint found');
     return {
       statusCode: 404,
       headers,
       body: JSON.stringify({ error: 'Not found' }),
     };
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error processing request:', error);
     return {
       statusCode: 500,
       headers,

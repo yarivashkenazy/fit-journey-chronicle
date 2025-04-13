@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 
 interface RestTimerProps {
@@ -11,36 +10,29 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
   const intervalRef = useRef<number | null>(null);
   
   useEffect(() => {
-    // Clear any existing interval first to prevent multiple timers
+    // Reset the timer
+    setTimeRemaining(defaultRestTime);
+    
+    // Clear any existing interval
     if (intervalRef.current) {
       window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
     }
-    
-    // Reset the timer when defaultRestTime changes
-    setTimeRemaining(defaultRestTime);
     
     // Start the countdown timer
     intervalRef.current = window.setInterval(() => {
       setTimeRemaining((prevTime) => {
-        // Log the current time for debugging
-        console.log(`Current timer value: ${prevTime}`);
-        
         if (prevTime <= 1) {
           // Clean up interval when done
           if (intervalRef.current) {
             window.clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
-          
-          // Call completion callback
           onComplete();
           return 0;
         }
-        
         return prevTime - 1;
       });
-    }, 1000); // Update every second
+    }, 1000);
     
     // Clean up on unmount
     return () => {
@@ -49,13 +41,18 @@ const RestTimer = ({ defaultRestTime, onComplete }: RestTimerProps) => {
         intervalRef.current = null;
       }
     };
-  }, [defaultRestTime, onComplete]);
-  
+  }, [defaultRestTime]); // Only depend on defaultRestTime
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="text-orange-500 font-medium animate-pulse">
-        {/* Timer value removed as requested */}
-      </span>
+    <div className="text-orange-500 animate-pulse">
+      {formatTime(timeRemaining)}
     </div>
   );
 };

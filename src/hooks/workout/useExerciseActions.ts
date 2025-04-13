@@ -1,4 +1,3 @@
-
 import { Exercise, ExerciseLog, Set, Workout } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
@@ -16,19 +15,41 @@ export const useExerciseActions = (
     const updatedLogs = [...exerciseLogs];
     const updatedSets = [...updatedLogs[exerciseIndex].sets];
     
-    updatedSets[setIndex] = {
-      ...updatedSets[setIndex],
-      [field]: field === 'completed' ? value : Number(value)
+    // Create a new set object with all current properties
+    const currentSet = updatedSets[setIndex];
+    let updatedSet = {
+      ...currentSet,
+      [field]: value
     };
     
+    // Handle state transitions
+    if (field === 'completed' && value === true) {
+      // When completing a set, ensure timer is stopped
+      updatedSet.timerActive = false;
+    } else if (field === 'completed' && value === false) {
+      // When uncompleting a set, reset to default state
+      updatedSet = {
+        id: currentSet.id,
+        weight: 0,
+        reps: 0,
+        completed: false,
+        timerActive: false
+      };
+    } else if (field === 'timerActive' && value === true) {
+      // When starting timer, ensure set is not completed
+      updatedSet.completed = false;
+    } else if (field === 'timerActive' && value === false) {
+      // When stopping timer, ensure set is completed
+      updatedSet.completed = true;
+    }
+    
+    updatedSets[setIndex] = updatedSet;
     updatedLogs[exerciseIndex] = {
       ...updatedLogs[exerciseIndex],
       sets: updatedSets
     };
     
     setExerciseLogs(updatedLogs);
-    
-    // Removed the code that starts the rest timer when a set is completed
   };
   
   const handleRestTimerComplete = (timerId: string) => {

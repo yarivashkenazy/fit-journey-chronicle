@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Workout, ExerciseLog, Set } from "@/types/workout";
 import { getWorkout } from "@/utils/storageService";
@@ -23,7 +22,8 @@ export const useWorkoutState = (workoutId: string | undefined) => {
             id: uuidv4(),
             weight: 0,
             reps: 0,
-            completed: false
+            completed: false,
+            timerActive: false
           }));
           
           return {

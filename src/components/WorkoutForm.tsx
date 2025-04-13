@@ -1,4 +1,3 @@
-
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, Timer, RotateCcw, Dumbbell, Activity, Footprints, Weight, ActivitySquare } from "lucide-react";
@@ -38,17 +37,17 @@ const WorkoutForm = () => {
   const getWorkoutIcon = (category?: string) => {
     switch (category) {
       case 'push':
-        return <Dumbbell className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🏋️</span>;
       case 'pull':
-        return <Weight className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🪢</span>;
       case 'legs':
-        return <Footprints className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🦵</span>;
       case 'full':
-        return <ActivitySquare className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🏃</span>;
       case 'cardio':
-        return <Activity className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🚴</span>;
       default:
-        return <Dumbbell className="h-6 w-6 text-fitness-primary mr-2" />;
+        return <span className="text-2xl mr-2">🏋️</span>;
     }
   };
   

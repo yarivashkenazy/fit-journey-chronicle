@@ -1,4 +1,3 @@
-
 import { ArrowLeft, Square, CheckSquare, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +27,7 @@ export function HistoryHeader({
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back
       </Button>
-      <h1 className="text-2xl font-bold">Workout History</h1>
+      <h1 className="text-2xl font-bold">🕰️&nbsp;&nbsp;History</h1>
       
       {workoutLogsExist && (
         <div className="flex items-center space-x-2">

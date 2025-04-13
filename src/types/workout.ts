@@ -17,6 +17,7 @@ export interface Set {
   weight: number;
   reps: number;
   completed: boolean;
+  timerActive?: boolean;
   notes?: string;
 }
 

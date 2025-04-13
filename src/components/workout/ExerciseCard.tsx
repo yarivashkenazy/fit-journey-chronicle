@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Plus, Check, Info, Trash, Clock, GripVertical } from "lucide-react";
+import { Plus, Check, Info, Trash, Clock, GripVertical, FastForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -113,7 +112,7 @@ const ExerciseCard = ({
           
           {exerciseLog.sets.map((set, setIndex) => {
             const timerId = `${exerciseIndex}-${setIndex}`;
-            const showRestTimer = activeRestTimers[timerId];
+            const isTimerActive = set.timerActive || false;
             
             return (
               <div key={set.id} className="space-y-2">
@@ -125,7 +124,13 @@ const ExerciseCard = ({
                         type="number"
                         value={set.weight || ""}
                         onChange={(e) => onSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
-                        className={`pl-2 pr-8 ${set.completed ? 'border-green-500 bg-green-50' : ''}`}
+                        className={`pl-2 pr-8 ${
+                          set.completed 
+                            ? 'border-green-500 bg-green-50' 
+                            : isTimerActive 
+                              ? 'border-orange-500 bg-orange-50' 
+                              : ''
+                        }`}
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         kg
@@ -137,33 +142,57 @@ const ExerciseCard = ({
                       type="number"
                       value={set.reps || ""}
                       onChange={(e) => onSetChange(exerciseIndex, setIndex, 'reps', e.target.value)}
-                      className={`${set.completed ? 'border-green-500 bg-green-50' : ''}`}
+                      className={`${
+                        set.completed 
+                          ? 'border-green-500 bg-green-50' 
+                          : isTimerActive 
+                            ? 'border-orange-500 bg-orange-50' 
+                            : ''
+                      }`}
                     />
                   </div>
                   <div className="col-span-3 flex items-center gap-2">
                     <Button
                       size="icon"
-                      variant={set.completed ? "default" : "outline"}
+                      variant="outline"
                       className={`h-8 w-8 ${
                         set.completed 
                           ? 'bg-green-500 hover:bg-green-600 border-green-500' 
                           : ''
                       }`}
                       onClick={() => {
-                        if (!set.completed) {
+                        if (!set.completed && !isTimerActive) {
+                          // Start the timer
+                          onSetChange(exerciseIndex, setIndex, 'timerActive', true);
+                        } else if (isTimerActive) {
+                          // Fast-forward: complete the set and stop the timer
                           onSetChange(exerciseIndex, setIndex, 'completed', true);
-                        } else {
+                          onSetChange(exerciseIndex, setIndex, 'timerActive', false);
+                          onRestTimerComplete(timerId);
+                        } else if (set.completed) {
+                          // Toggle completion off
                           onSetChange(exerciseIndex, setIndex, 'completed', false);
                         }
                       }}
                     >
-                      <Check className={`h-4 w-4 ${set.completed ? 'text-white' : 'text-green-500'}`} />
+                      {set.completed ? (
+                        <Check className="h-4 w-4 text-white" />
+                      ) : isTimerActive ? (
+                        <FastForward className="h-4 w-4 text-orange-500" />
+                      ) : (
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                      )}
                     </Button>
                     
-                    {showRestTimer && (
+                    {isTimerActive && (
                       <RestTimer 
                         defaultRestTime={exercise?.defaultRestPeriod || 60} 
-                        onComplete={() => onRestTimerComplete(timerId)} 
+                        onComplete={() => {
+                          // When timer completes naturally
+                          onSetChange(exerciseIndex, setIndex, 'completed', true);
+                          onSetChange(exerciseIndex, setIndex, 'timerActive', false);
+                          onRestTimerComplete(timerId);
+                        }} 
                       />
                     )}
                   </div>

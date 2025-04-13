@@ -20,8 +20,12 @@ const handler: Handler = async (event, context) => {
   }
 
   try {
-    const path = event.path.replace('/.netlify/functions/workouts/', '');
-    const segments = path.split('/');
+    // Get the path after the function name
+    const path = event.path.replace('/.netlify/functions/workouts', '');
+    const segments = path.split('/').filter(Boolean); // Remove empty segments
+
+    console.log('Path:', path);
+    console.log('Segments:', segments);
 
     // Handle different endpoints
     switch (segments[0]) {
@@ -83,6 +87,7 @@ const handler: Handler = async (event, context) => {
         break;
 
       default:
+        // Handle direct workout ID requests
         if (event.httpMethod === 'GET' && segments[0]) {
           const workout = await getWorkout(segments[0]);
           if (!workout) {

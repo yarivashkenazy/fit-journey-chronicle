@@ -58,8 +58,12 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
   try {
+    console.log('Fetching workout:', `${API_URL}/${workoutId}`);
     const response = await fetch(`${API_URL}/${workoutId}`);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error('Workout fetch failed:', response.status, response.statusText);
+      return null;
+    }
     return handleResponse(response);
   } catch (error) {
     console.error('Error fetching workout:', error);

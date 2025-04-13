@@ -20,10 +20,11 @@
 
 # Handle service worker
 [[headers]]
-  for = "/service-worker.js"
+  for = "/sw.js"
   [headers.values]
-    Cache-Control = "no-cache"
+    Cache-Control = "no-cache, no-store, must-revalidate"
     Content-Type = "application/javascript"
+    Service-Worker-Allowed = "/"
 
 # Handle other assets
 [[headers]]

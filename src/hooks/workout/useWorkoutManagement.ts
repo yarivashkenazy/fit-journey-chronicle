@@ -1,7 +1,7 @@
 import { Workout, WorkoutLog, ExerciseLog } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
-import { saveWorkoutLog, saveCustomWorkout, saveDefaultWorkout } from "@/utils/mongodbService";
+import { saveWorkoutLog, saveCustomWorkout, saveDefaultWorkout } from "@/utils/apiService";
 
 export const useWorkoutManagement = (
   workout: Workout | null,

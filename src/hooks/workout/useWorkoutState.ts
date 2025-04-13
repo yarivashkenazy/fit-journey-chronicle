@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Workout, ExerciseLog, Set } from "@/types/workout";
-import { getWorkout } from "@/utils/mongodbService";
+import { getWorkout } from "@/utils/apiService";
 import { v4 as uuidv4 } from "uuid";
 
 export const useWorkoutState = (workoutId: string | undefined) => {

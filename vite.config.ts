@@ -69,7 +69,9 @@ export default defineConfig(({ mode }) => ({
               }
             }
           }
-        ]
+        ],
+        maximumFileSizeToCacheInBytes: 3000000,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
       }
     })
   ].filter(Boolean),
@@ -81,5 +83,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 8080
   },
-  base: './'
+  base: './',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-toast'],
+          utils: ['date-fns', 'uuid', 'sonner']
+        }
+      }
+    }
+  }
 }))

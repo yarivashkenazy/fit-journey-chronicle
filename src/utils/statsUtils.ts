@@ -1,5 +1,5 @@
 import { ExerciseLog, WorkoutLog, WorkoutStats } from "@/types/workout";
-import { getWorkoutLogs } from "./mongodbService";
+import { getWorkoutLogs } from "./apiService";
 
 // Calculate the stats for all time
 export const calculateWorkoutStats = async (): Promise<WorkoutStats> => {

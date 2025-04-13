@@ -62,9 +62,9 @@ const Dashboard = () => {
   
   return (
     <div className="container py-6 space-y-6 overflow-x-hidden max-w-full">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between dashboard-header">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <WeeklyProgress 
             current={weeklyGoal.current} 
             target={weeklyGoal.target} 
@@ -100,7 +100,7 @@ const Dashboard = () => {
       </div>
       
       {/* Progress Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full overflow-x-hidden dashboard-grid">
         <div className="col-span-1 h-[420px]">
           <ProgressChart stats={stats} />
         </div>

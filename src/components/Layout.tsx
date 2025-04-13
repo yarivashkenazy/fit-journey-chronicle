@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BarChart2, Calendar, History, Home } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,8 +17,12 @@ const Layout = ({ children }: LayoutProps) => {
   const hideNavbar = location.pathname.includes('/workout/');
   
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden">
-      <main className={`flex-1 ${hideNavbar ? 'pb-0' : 'pb-16'} overflow-x-hidden`}>{children}</main>
+    <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
+      <ScrollArea className="flex-1 overflow-x-hidden w-full">
+        <main className={`flex-1 ${hideNavbar ? 'pb-0' : 'pb-16'} overflow-x-hidden w-full`}>
+          {children}
+        </main>
+      </ScrollArea>
       
       {!hideNavbar && (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 z-20 shadow-lg">

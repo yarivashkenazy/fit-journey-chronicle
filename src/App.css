@@ -61,15 +61,41 @@ body {
   }
   
   .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     max-width: 100vw;
     width: 100%;
     overflow-x: hidden;
   }
   
+  /* Fix for weekly goals on mobile */
+  .dashboard-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
   /* Fix for charts overflowing on mobile */
   .recharts-wrapper {
     max-width: 100%;
+  }
+  
+  /* Ensure all content respects container width */
+  .dashboard-grid {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+/* Extra small screen support */
+@media (max-width: 374px) {
+  #root {
+    padding: 0.5rem;
+  }
+  
+  .container {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
   }
 }

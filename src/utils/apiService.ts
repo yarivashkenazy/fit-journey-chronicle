@@ -1,6 +1,6 @@
 import { Workout, WorkoutLog } from '@/types/workout';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
 const handleResponse = async (response: Response) => {
   console.log('=== API Response Start ===');

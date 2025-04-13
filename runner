@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Clear any existing service workers and caches
+echo "Clearing service workers and caches..."
+rm -rf dist
+rm -rf dev-dist
+rm -rf .vite
+
 # Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
   echo "Installing dependencies..."

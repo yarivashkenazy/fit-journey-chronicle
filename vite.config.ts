@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true
+        enabled: false,
+        type: 'module'
       },
       includeAssets: [
         'favicon.ico', 
@@ -108,6 +109,9 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 3000,
-    open: true
+    open: true,
+    hmr: {
+      overlay: false
+    }
   }
 }))

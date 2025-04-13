@@ -159,14 +159,27 @@ export const getWorkoutLogs = async (): Promise<WorkoutLog[]> => {
   }
 };
 
-export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
+export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog> => {
   try {
+    console.log('Saving workout log to MongoDB:', workoutLog);
     const collection = await getCollection<WorkoutLog>('workout-logs');
-    await collection.updateOne(
-      { _id: workoutLog._id },
-      { $set: workoutLog },
-      { upsert: true }
-    );
+    
+    // Remove _id if present to let MongoDB generate a new one
+    const { _id, ...logWithoutId } = workoutLog;
+    
+    // Insert the document and get the result
+    const result = await collection.insertOne(logWithoutId);
+    console.log('Insert result:', result);
+    
+    // Fetch the complete document with the generated _id
+    const savedLog = await collection.findOne({ _id: result.insertedId });
+    console.log('Saved workout log:', savedLog);
+    
+    if (!savedLog) {
+      throw new Error('Failed to retrieve saved workout log');
+    }
+    
+    return savedLog;
   } catch (error) {
     console.error('Error saving workout log:', error);
     throw error;

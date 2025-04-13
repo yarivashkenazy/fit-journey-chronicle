@@ -26,17 +26,14 @@ const WeeklyProgress = ({ current, target, percentage, compact = false }: Weekly
   }
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Weekly Goal</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full">
+      <CardContent className="pt-4 pb-3">
         <div className="space-y-3">
-          <div className="flex justify-between">
-            <p className="text-sm text-muted-foreground">Progress</p>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Weekly Goal</CardTitle>
             <p className="text-sm font-medium">{current} of {target} workouts</p>
           </div>
-          <Progress value={percentage} className="h-2" />
+          <Progress value={percentage} className="h-2.5" />
           <p className="text-sm text-muted-foreground text-center">
             {percentage === 100 ? "Goal completed! 🎉" : `${percentage}% complete`}
           </p>

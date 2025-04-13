@@ -102,6 +102,9 @@ const Dashboard = () => {
         )}
       </div>
       
+      {/* Workout Tracking Section Title */}
+      <h2 className="text-xl font-semibold">Workout Tracking</h2>
+      
       {/* Progress Charts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full overflow-x-hidden dashboard-grid">
         <div className="col-span-1 h-[420px]">

@@ -3,21 +3,25 @@
   publish = "dist"
   functions = "netlify/functions"
 
-[functions]
-  included_files = ["src/utils/mongodbService.ts"]
-
-# Handle SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Handle API routes
+# Handle API routes - this must come BEFORE the SPA fallback
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/workouts/:splat"
   status = 200
   force = true
+
+# Handle SPA routing - this must come AFTER the API routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Handle API responses
+[[headers]]
+  for = "/.netlify/functions/workouts/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Content-Type = "application/json"
 
 # Handle service worker
 [[headers]]
@@ -27,14 +31,6 @@
     Content-Type = "application/javascript"
     Service-Worker-Allowed = "/"
 
-# Handle API responses
-[[headers]]
-  for = "/.netlify/functions/workouts/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Content-Type = "application/json"
-
-# Handle other assets
 [[headers]]
   for = "/service-worker.js"
   [headers.values]

@@ -8,6 +8,7 @@ import { WorkoutGoal } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Info } from "lucide-react";
 
 interface GoalSettingProps {
   onGoalUpdate?: () => void;
@@ -54,7 +55,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Set Goals</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 flex flex-col justify-between h-[calc(100%-60px)]">
+      <CardContent className="pt-0 flex flex-col h-[calc(100%-60px)]">
         <div className="space-y-4">
           <div>
             <div className="flex justify-between mb-1">
@@ -75,15 +76,32 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             </div>
           </div>
           
-          <div className="mt-8">
+          <div>
             <Button className="w-full" size="sm" onClick={handleSaveGoal}>
               Save Goals
             </Button>
           </div>
         </div>
 
-        <div className="mt-auto pt-4">
-          {/* Removed the explanatory text that was here */}
+        <div className="mt-auto pt-4 space-y-4">
+          <div className="rounded-lg bg-muted/50 p-3 text-sm">
+            <div className="flex gap-2 items-start">
+              <Info className="h-4 w-4 mt-0.5 text-muted-foreground" />
+              <div>
+                <p className="font-medium mb-1">About Weekly Goals</p>
+                <p className="text-muted-foreground text-xs">Setting a weekly workout goal helps track your consistency and build healthy habits.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="rounded-lg bg-muted/50 p-3 text-sm">
+            <p className="font-medium mb-1">Tips for Success</p>
+            <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
+              <li>Start with achievable goals</li>
+              <li>Increase gradually over time</li>
+              <li>Consistency beats intensity</li>
+            </ul>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -62,15 +62,6 @@ const Dashboard = () => {
   
   return (
     <div className="container py-6 space-y-6 overflow-x-hidden max-w-full">
-      {/* Weekly Goal Top Widget */}
-      <div className="w-full">
-        <WeeklyProgress 
-          current={weeklyGoal.current} 
-          target={weeklyGoal.target} 
-          percentage={weeklyGoal.percentage}
-        />
-      </div>
-      
       <div className="flex items-center justify-between dashboard-header">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
         <div className="flex flex-wrap gap-2 items-center">
@@ -79,6 +70,15 @@ const Dashboard = () => {
             Refresh
           </Button>
         </div>
+      </div>
+      
+      {/* Weekly Goal Widget - Now below the title */}
+      <div className="w-full">
+        <WeeklyProgress 
+          current={weeklyGoal.current} 
+          target={weeklyGoal.target} 
+          percentage={weeklyGoal.percentage}
+        />
       </div>
       
       {/* Start Workout Section */}

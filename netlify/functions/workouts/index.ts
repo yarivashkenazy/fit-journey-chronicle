@@ -8,6 +8,7 @@ const handler: Handler = async (event, context) => {
     httpMethod: event.httpMethod,
     queryStringParameters: event.queryStringParameters,
     body: event.body,
+    headers: event.headers,
   });
 
   // Set CORS headers
@@ -29,12 +30,13 @@ const handler: Handler = async (event, context) => {
   }
 
   try {
-    // Get the path after the function name
-    const path = event.path.replace('/.netlify/functions/workouts', '');
+    // Get the path after the function name or API prefix
+    const path = event.path.replace(/^(\/\.netlify\/functions\/workouts|\/api\/workouts)/, '');
     const segments = path.split('/').filter(Boolean); // Remove empty segments
 
     console.log('Processing request:', {
-      path,
+      originalPath: event.path,
+      processedPath: path,
       segments,
       method: event.httpMethod,
     });
@@ -97,16 +99,16 @@ const handler: Handler = async (event, context) => {
             body: JSON.stringify(workouts),
           };
         }
-      } else if (event.httpMethod === 'POST') {
+      } else if (event.httpMethod === 'PUT') {
         console.log('Saving default workout');
         const workout = JSON.parse(event.body || '{}');
         console.log('Workout data:', workout);
-        const savedWorkout = await saveDefaultWorkout(workout);
-        console.log('Saved default workout:', savedWorkout);
+        await saveDefaultWorkout(workout);
+        console.log('Saved default workout');
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify(savedWorkout),
+          body: JSON.stringify({ success: true }),
         };
       }
     } else if (segments[0] === 'custom') {
@@ -120,16 +122,16 @@ const handler: Handler = async (event, context) => {
           headers,
           body: JSON.stringify(workouts),
         };
-      } else if (event.httpMethod === 'POST') {
+      } else if (event.httpMethod === 'PUT') {
         console.log('Saving custom workout');
         const workout = JSON.parse(event.body || '{}');
         console.log('Workout data:', workout);
-        const savedWorkout = await saveCustomWorkout(workout);
-        console.log('Saved custom workout:', savedWorkout);
+        await saveCustomWorkout(workout);
+        console.log('Saved custom workout');
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify(savedWorkout),
+          body: JSON.stringify({ success: true }),
         };
       }
     } else if (segments.length === 1) {
@@ -170,7 +172,11 @@ const handler: Handler = async (event, context) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.stack : undefined : undefined
+      }),
     };
   } finally {
     console.log('=== Function Invocation End ===');

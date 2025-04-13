@@ -1,52 +1,68 @@
 import { Workout, WorkoutLog } from '@/types/workout';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/.netlify/functions/workouts';
 
-// Default Workouts
-export const getDefaultWorkouts = async (): Promise<Workout[]> => {
-  const response = await fetch(`${API_URL}/workouts/default`);
+const handleResponse = async (response: Response) => {
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || 'An error occurred');
+  }
   return response.json();
 };
 
+// Default Workouts
+export const getDefaultWorkouts = async (): Promise<Workout[]> => {
+  const response = await fetch(`${API_URL}/default`);
+  return handleResponse(response);
+};
+
 export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
-  await fetch(`${API_URL}/workouts/default/${workout.id}`, {
+  const response = await fetch(`${API_URL}/default/${workout.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
   });
+  await handleResponse(response);
 };
 
 // Custom Workouts
 export const getCustomWorkouts = async (): Promise<Workout[]> => {
-  const response = await fetch(`${API_URL}/workouts/custom`);
-  return response.json();
+  const response = await fetch(`${API_URL}/custom`);
+  return handleResponse(response);
 };
 
 export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
-  await fetch(`${API_URL}/workouts/custom/${workout.id}`, {
+  const response = await fetch(`${API_URL}/custom/${workout.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
   });
+  await handleResponse(response);
 };
 
 // Workout Logs
 export const getWorkoutLogs = async (): Promise<WorkoutLog[]> => {
-  const response = await fetch(`${API_URL}/workouts/logs`);
-  return response.json();
+  const response = await fetch(`${API_URL}/logs`);
+  return handleResponse(response);
 };
 
 export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
-  await fetch(`${API_URL}/workouts/logs`, {
+  const response = await fetch(`${API_URL}/logs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workoutLog),
   });
+  await handleResponse(response);
 };
 
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
-  const response = await fetch(`${API_URL}/workouts/${workoutId}`);
-  if (!response.ok) return null;
-  return response.json();
+  try {
+    const response = await fetch(`${API_URL}/${workoutId}`);
+    if (!response.ok) return null;
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Error fetching workout:', error);
+    return null;
+  }
 }; 

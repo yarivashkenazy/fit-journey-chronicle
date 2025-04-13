@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const uri = process.env.MONGODB_URI;
 
 exports.handler = async function(event, context) {
@@ -19,10 +19,10 @@ exports.handler = async function(event, context) {
     console.log("MongoDB connected successfully");
     
     const database = client.db("fit-journey-chronicle");
-    const collection = database.collection("default-workouts");
     
     // Handle workout data request
     if (endpoint === 'default-push-workout') {
+      const collection = database.collection("default-workouts");
       console.log("Looking for push workout");
       
       // First try finding by ID field
@@ -83,6 +83,59 @@ exports.handler = async function(event, context) {
         },
         body: JSON.stringify({ logs })
       };
+    }
+    
+    // Handle save workout log
+    else if (event.httpMethod === 'POST' && endpoint === 'save') {
+      const logsCollection = database.collection("workout-logs");
+      const workoutLog = JSON.parse(event.body);
+      
+      // Remove null _id if present
+      if (workoutLog._id === null) {
+        delete workoutLog._id;
+      }
+      
+      // Ensure we have a valid date
+      if (!workoutLog.date) {
+        workoutLog.date = new Date().toISOString();
+      }
+      
+      // Add createdAt timestamp if not present
+      if (!workoutLog.createdAt) {
+        workoutLog.createdAt = new Date().toISOString();
+      }
+      
+      console.log("Saving workout log:", workoutLog);
+      
+      try {
+        const result = await logsCollection.insertOne(workoutLog);
+        console.log("Save result:", result);
+        
+        return {
+          statusCode: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          },
+          body: JSON.stringify({ 
+            success: true,
+            insertedId: result.insertedId
+          })
+        };
+      } catch (error) {
+        console.error("Error saving workout log:", error);
+        return {
+          statusCode: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          },
+          body: JSON.stringify({ 
+            error: "Failed to save workout log",
+            message: error.message
+          })
+        };
+      }
     }
     
     // Handle unknown endpoint

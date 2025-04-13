@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/fit-journey-chronicle/dev-sw.js?dev-sw', { scope: '/fit-journey-chronicle/', type: 'classic' })

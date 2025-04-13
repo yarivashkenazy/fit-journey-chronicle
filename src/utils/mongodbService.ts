@@ -128,14 +128,26 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
   try {
+    console.log('Looking for workout with ID:', workoutId);
+    
     // First check custom workouts
     const customCollection = await getCollection<Workout>('customWorkouts');
     const customWorkout = await customCollection.findOne({ id: workoutId });
-    if (customWorkout) return customWorkout;
+    if (customWorkout) {
+      console.log('Found workout in custom workouts:', customWorkout);
+      return customWorkout;
+    }
 
     // Then check default workouts
     const defaultCollection = await getCollection<Workout>('defaultWorkouts');
-    return defaultCollection.findOne({ id: workoutId });
+    const defaultWorkout = await defaultCollection.findOne({ id: workoutId });
+    if (defaultWorkout) {
+      console.log('Found workout in default workouts:', defaultWorkout);
+      return defaultWorkout;
+    }
+
+    console.log('Workout not found in either collection');
+    return null;
   } catch (error) {
     console.error('Error getting workout:', error);
     throw error;

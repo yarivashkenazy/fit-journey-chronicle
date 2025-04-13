@@ -1,6 +1,6 @@
 import { Workout, WorkoutLog } from '@/types/workout';
 
-const API_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+const API_URL = import.meta.env.VITE_API_URL || '/.netlify/functions/workouts';
 
 const handleResponse = async (response: Response) => {
   console.log('=== API Response Start ===');
@@ -36,14 +36,14 @@ const handleResponse = async (response: Response) => {
 
 // Default Workouts
 export const getDefaultWorkouts = async (): Promise<Workout[]> => {
-  console.log('Fetching default workouts from:', `${API_URL}/workouts/default`);
-  const response = await fetch(`${API_URL}/workouts/default`);
+  console.log('Fetching default workouts from:', `${API_URL}/default`);
+  const response = await fetch(`${API_URL}/default`);
   return handleResponse(response);
 };
 
 export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
   console.log('Saving default workout:', workout);
-  const response = await fetch(`${API_URL}/workouts/default/${workout.id}`, {
+  const response = await fetch(`${API_URL}/default/${workout.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
@@ -53,14 +53,14 @@ export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
 
 // Custom Workouts
 export const getCustomWorkouts = async (): Promise<Workout[]> => {
-  console.log('Fetching custom workouts from:', `${API_URL}/workouts/custom`);
-  const response = await fetch(`${API_URL}/workouts/custom`);
+  console.log('Fetching custom workouts from:', `${API_URL}/custom`);
+  const response = await fetch(`${API_URL}/custom`);
   return handleResponse(response);
 };
 
 export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
   console.log('Saving custom workout:', workout);
-  const response = await fetch(`${API_URL}/workouts/custom/${workout.id}`, {
+  const response = await fetch(`${API_URL}/custom/${workout.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
@@ -70,14 +70,14 @@ export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
 
 // Workout Logs
 export const getWorkoutLogs = async (): Promise<WorkoutLog[]> => {
-  console.log('Fetching workout logs from:', `${API_URL}/workouts/logs`);
-  const response = await fetch(`${API_URL}/workouts/logs`);
+  console.log('Fetching workout logs from:', `${API_URL}/logs`);
+  const response = await fetch(`${API_URL}/logs`);
   return handleResponse(response);
 };
 
 export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog> => {
   console.log('Saving workout log:', workoutLog);
-  const response = await fetch(`${API_URL}/workouts/logs`, {
+  const response = await fetch(`${API_URL}/logs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workoutLog),
@@ -87,9 +87,9 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog
 
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
-  console.log('Fetching workout:', `${API_URL}/workouts/${workoutId}`);
+  console.log('Fetching workout:', `${API_URL}/${workoutId}`);
   try {
-    const response = await fetch(`${API_URL}/workouts/${workoutId}`);
+    const response = await fetch(`${API_URL}/${workoutId}`);
     return handleResponse(response);
   } catch (error) {
     console.error('Error fetching workout:', error);
@@ -99,10 +99,10 @@ export const getWorkout = async (workoutId: string): Promise<Workout | null> => 
 
 export const fetchWorkout = async (workoutId: string): Promise<Workout> => {
   console.log('Fetching workout with ID:', workoutId);
-  console.log('API URL:', `${API_URL}/workouts/${workoutId}`);
+  console.log('API URL:', `${API_URL}/${workoutId}`);
   
   try {
-    const response = await fetch(`${API_URL}/workouts/${workoutId}`, {
+    const response = await fetch(`${API_URL}/${workoutId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

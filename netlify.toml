@@ -15,7 +15,7 @@
 # Handle API routes
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/.netlify/functions/workouts/:splat"
   status = 200
   force = true
 
@@ -29,7 +29,7 @@
 
 # Handle API responses
 [[headers]]
-  for = "/.netlify/functions/*"
+  for = "/.netlify/functions/workouts/*"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
     Content-Type = "application/json"

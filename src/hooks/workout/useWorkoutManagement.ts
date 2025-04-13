@@ -1,8 +1,7 @@
-
 import { Workout, WorkoutLog, ExerciseLog } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
-import { saveWorkoutLog, saveWorkout } from "@/utils/storageService";
+import { saveWorkoutLog, saveCustomWorkout, saveDefaultWorkout } from "@/utils/mongodbService";
 
 export const useWorkoutManagement = (
   workout: Workout | null,
@@ -13,7 +12,7 @@ export const useWorkoutManagement = (
   notes: string,
   startTime: Date
 ) => {
-  const completeWorkout = (navigateCallback: () => void) => {
+  const completeWorkout = async (navigateCallback: () => void) => {
     if (!workout) return;
     
     const now = new Date();
@@ -34,12 +33,12 @@ export const useWorkoutManagement = (
       notes
     };
     
-    saveWorkoutLog(workoutLog);
+    await saveWorkoutLog(workoutLog);
     toast.success("Workout completed and saved!");
     navigateCallback();
   };
   
-  const addNewExercise = (newExercise: {
+  const addNewExercise = async (newExercise: {
     name: string;
     sets: number;
     reps: string;
@@ -79,16 +78,21 @@ export const useWorkoutManagement = (
     
     setExerciseLogs([...exerciseLogs, newLog]);
     
-    saveWorkout(updatedWorkout);
+    // Save to custom workouts since it's a modification
+    await saveCustomWorkout(updatedWorkout);
     
     toast.success("New exercise added to workout");
   };
   
-  const restoreDefaultExercises = () => {
+  const restoreDefaultExercises = async () => {
     if (!originalWorkout || !workout) return;
     
     setWorkout(JSON.parse(JSON.stringify(originalWorkout)));
-    saveWorkout(originalWorkout);
+    
+    // If this was a custom workout, delete it from custom workouts
+    if (!originalWorkout.id.startsWith('default-')) {
+      await saveDefaultWorkout(originalWorkout);
+    }
     
     const initialLogs = originalWorkout.exercises.map(exercise => {
       const sets = Array(exercise.defaultSets).fill(0).map(() => ({
@@ -111,14 +115,20 @@ export const useWorkoutManagement = (
     toast.success("Workout restored to default exercises");
   };
   
-  const reorderExercises = (updatedWorkout: Workout, reorderedExercises: ExerciseLog[]) => {
-    setWorkout(updatedWorkout);
-    setExerciseLogs(reorderedExercises);
+  const reorderExercises = async (newOrder: string[]) => {
+    if (!workout) return;
     
-    saveWorkout(updatedWorkout);
-    toast.success("Exercise order updated");
+    const updatedWorkout = { ...workout };
+    updatedWorkout.exercises = newOrder.map(id => 
+      workout.exercises.find(ex => ex.id === id)!
+    );
+    
+    setWorkout(updatedWorkout);
+    
+    // Save to custom workouts since it's a modification
+    await saveCustomWorkout(updatedWorkout);
   };
-
+  
   return {
     completeWorkout,
     addNewExercise,

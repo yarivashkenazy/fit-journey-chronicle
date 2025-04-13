@@ -1,10 +1,9 @@
-
 import { ExerciseLog, WorkoutLog, WorkoutStats } from "@/types/workout";
-import { getWorkoutLogs } from "./storageService";
+import { getWorkoutLogs } from "./mongodbService";
 
 // Calculate the stats for all time
-export const calculateWorkoutStats = (): WorkoutStats => {
-  const logs = getWorkoutLogs();
+export const calculateWorkoutStats = async (): Promise<WorkoutStats> => {
+  const logs = await getWorkoutLogs();
   
   // Total workouts
   const totalWorkouts = logs.length;
@@ -40,88 +39,48 @@ export const calculateWorkoutStats = (): WorkoutStats => {
   };
 };
 
-// Get the number of workouts completed per week for the last n weeks
-export const getWeeklyWorkoutCounts = (logs: WorkoutLog[], weeks: number = 10): number[] => {
-  const counts: number[] = Array(weeks).fill(0);
-  const today = new Date();
-  const msInWeek = 7 * 24 * 60 * 60 * 1000;
+// Helper function to get weekly workout counts
+const getWeeklyWorkoutCounts = (logs: WorkoutLog[], weeks: number): number[] => {
+  const now = new Date();
+  const weeklyCounts: number[] = Array(weeks).fill(0);
   
   logs.forEach(log => {
     const logDate = new Date(log.date);
-    const weeksDiff = Math.floor((today.getTime() - logDate.getTime()) / msInWeek);
+    const weeksAgo = Math.floor((now.getTime() - logDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
     
-    if (weeksDiff >= 0 && weeksDiff < weeks) {
-      counts[weeksDiff]++;
+    if (weeksAgo >= 0 && weeksAgo < weeks) {
+      weeklyCounts[weeksAgo]++;
     }
   });
   
-  // Reverse so that oldest is first
-  return counts.reverse();
+  return weeklyCounts.reverse();
 };
 
-// Get progress data for exercises
-export const getExerciseProgress = (logs: WorkoutLog[]) => {
-  const exerciseMap = new Map<string, {
-    exerciseId: string;
-    exerciseName: string;
-    data: { date: string; maxWeight: number }[];
-  }>();
-  
-  // Track primary compound exercises
-  const trackExercises = [
-    "Bench Press",
-    "Deadlift",
-    "Squats",
-    "Overhead Press"
-  ];
+// Helper function to get exercise progress
+const getExerciseProgress = (logs: WorkoutLog[]) => {
+  const exerciseMap = new Map<string, { exerciseId: string; exerciseName: string; data: { date: string; maxWeight: number }[] }>();
   
   logs.forEach(log => {
     log.exerciseLogs.forEach(exercise => {
-      if (trackExercises.includes(exercise.exerciseName)) {
-        // Find the maximum weight for this exercise in this workout
-        const maxWeight = Math.max(...exercise.sets.map(set => set.weight));
-        
-        const exerciseId = exercise.exerciseId.startsWith('bench') ? 'benchpress' : 
-                          exercise.exerciseId.startsWith('dead') ? 'deadlift' : 
-                          exercise.exerciseId.startsWith('squat') ? 'squats' : 
-                          exercise.exerciseId.startsWith('over') ? 'overheadpress' : 
-                          exercise.exerciseId;
-        
-        const mapKey = exercise.exerciseName.toLowerCase().replace(/\s+/g, '');
-        
-        if (!exerciseMap.has(mapKey)) {
-          exerciseMap.set(mapKey, {
-            exerciseId: exerciseId,
-            exerciseName: exercise.exerciseName,
-            data: []
-          });
-        }
-        
-        const existingData = exerciseMap.get(mapKey)!;
-        
-        // Check if we already have an entry for this date
-        const dateExists = existingData.data.some(entry => entry.date === log.date);
-        
-        if (!dateExists) {
-          existingData.data.push({
-            date: log.date,
-            maxWeight
-          });
-        }
+      if (!exerciseMap.has(exercise.exerciseId)) {
+        exerciseMap.set(exercise.exerciseId, {
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.exerciseName,
+          data: []
+        });
+      }
+      
+      const maxWeight = Math.max(...exercise.sets.map(set => set.weight));
+      if (maxWeight > 0) {
+        exerciseMap.get(exercise.exerciseId)!.data.push({
+          date: log.date,
+          maxWeight
+        });
       }
     });
   });
   
-  // Sort data by date for each exercise
-  const result = Array.from(exerciseMap.values()).map(exercise => {
-    return {
-      exerciseId: exercise.exerciseId,
-      exerciseName: exercise.exerciseName,
-      data: exercise.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    };
-  });
-  
-  return result;
+  return Array.from(exerciseMap.values());
 };
 
 // Calculate if the weekly workout goal is met

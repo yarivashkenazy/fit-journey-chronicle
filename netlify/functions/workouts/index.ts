@@ -51,7 +51,10 @@ const handler: Handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify(logs),
+          body: JSON.stringify({ 
+            success: true,
+            data: logs
+          }),
         };
       } else if (event.httpMethod === 'POST') {
         console.log('Saving workout log');
@@ -62,7 +65,28 @@ const handler: Handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify(savedLog),
+          body: JSON.stringify({ 
+            success: true,
+            data: savedLog
+          }),
+        };
+      }
+    } else if (segments[0] === 'save') {
+      // Handle save workout log endpoint
+      console.log('Processing save workout log endpoint');
+      if (event.httpMethod === 'POST') {
+        console.log('Saving workout log');
+        const workoutLog = JSON.parse(event.body || '{}');
+        console.log('Workout log data:', workoutLog);
+        const savedLog = await saveWorkoutLog(workoutLog);
+        console.log('Saved workout log:', savedLog);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ 
+            success: true,
+            data: savedLog
+          }),
         };
       }
     } else if (segments[0] === 'default') {

@@ -2,7 +2,14 @@ import { Workout, WorkoutLog } from '@/types/workout';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-const handleResponse = async (response: Response) => {
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+const handleResponse = async <T>(response: Response): Promise<T> => {
   console.log('=== API Response Start ===');
   console.log('Response Status:', response.status);
   console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
@@ -13,7 +20,13 @@ const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('API Error Response:', errorText);
-    throw new Error(errorText || 'An error occurred');
+    let errorData;
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { message: errorText || 'An error occurred' };
+    }
+    throw new Error(errorData.message || 'An error occurred');
   }
   
   if (!contentType?.includes('application/json')) {
@@ -24,10 +37,15 @@ const handleResponse = async (response: Response) => {
   }
   
   try {
-    const data = await response.json();
+    const data: ApiResponse<T> = await response.json();
     console.log('Response Data:', data);
     console.log('=== API Response End ===');
-    return data;
+    
+    if (!data.success) {
+      throw new Error(data.message || data.error || 'Request failed');
+    }
+    
+    return data.data as T;
   } catch (error) {
     console.error('Error parsing JSON:', error);
     throw new Error('Invalid JSON response');
@@ -38,7 +56,7 @@ const handleResponse = async (response: Response) => {
 export const getDefaultWorkouts = async (): Promise<Workout[]> => {
   console.log('Fetching default workouts from:', `${API_URL}/workouts/default`);
   const response = await fetch(`${API_URL}/workouts/default`);
-  return handleResponse(response);
+  return handleResponse<Workout[]>(response);
 };
 
 export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
@@ -48,14 +66,14 @@ export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
   });
-  await handleResponse(response);
+  await handleResponse<void>(response);
 };
 
 // Custom Workouts
 export const getCustomWorkouts = async (): Promise<Workout[]> => {
   console.log('Fetching custom workouts from:', `${API_URL}/workouts/custom`);
   const response = await fetch(`${API_URL}/workouts/custom`);
-  return handleResponse(response);
+  return handleResponse<Workout[]>(response);
 };
 
 export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
@@ -65,24 +83,24 @@ export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workout),
   });
-  await handleResponse(response);
+  await handleResponse<void>(response);
 };
 
 // Workout Logs
 export const getWorkoutLogs = async (): Promise<WorkoutLog[]> => {
   console.log('Fetching workout logs from:', `${API_URL}/workouts/logs`);
   const response = await fetch(`${API_URL}/workouts/logs`);
-  return handleResponse(response);
+  return handleResponse<WorkoutLog[]>(response);
 };
 
 export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog> => {
   console.log('Saving workout log:', workoutLog);
-  const response = await fetch(`${API_URL}/workouts/logs`, {
+  const response = await fetch(`${API_URL}/workouts/save`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(workoutLog),
   });
-  return handleResponse(response);
+  return handleResponse<WorkoutLog>(response);
 };
 
 // Get a specific workout (checks both default and custom)
@@ -90,7 +108,7 @@ export const getWorkout = async (workoutId: string): Promise<Workout | null> => 
   console.log('Fetching workout:', `${API_URL}/workouts/${workoutId}`);
   try {
     const response = await fetch(`${API_URL}/workouts/${workoutId}`);
-    return handleResponse(response);
+    return handleResponse<Workout>(response);
   } catch (error) {
     console.error('Error fetching workout:', error);
     return null;
@@ -109,7 +127,7 @@ export const fetchWorkout = async (workoutId: string): Promise<Workout> => {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<Workout>(response);
   } catch (error) {
     console.error('Error in fetchWorkout:', error);
     throw error;
@@ -128,7 +146,7 @@ export const fetchWorkouts = async (): Promise<Workout[]> => {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<Workout[]>(response);
   } catch (error) {
     console.error('Error in fetchWorkouts:', error);
     throw error;
@@ -148,7 +166,7 @@ export const saveWorkout = async (workout: Workout): Promise<Workout> => {
       body: JSON.stringify(workout),
     });
     
-    return handleResponse(response);
+    return handleResponse<Workout>(response);
   } catch (error) {
     console.error('Error in saveWorkout:', error);
     throw error;
@@ -167,7 +185,7 @@ export const fetchWorkoutLogs = async (): Promise<WorkoutLog[]> => {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<WorkoutLog[]>(response);
   } catch (error) {
     console.error('Error in fetchWorkoutLogs:', error);
     throw error;

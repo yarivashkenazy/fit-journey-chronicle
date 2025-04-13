@@ -8,7 +8,6 @@ import { WorkoutGoal } from "@/types/workout";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Info } from "lucide-react";
 
 interface GoalSettingProps {
   onGoalUpdate?: () => void;
@@ -80,17 +79,6 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
             <Button className="w-full" size="sm" onClick={handleSaveGoal}>
               Save Goals
             </Button>
-          </div>
-        </div>
-
-        <div className="mt-auto pt-4 space-y-4">
-          <div className="rounded-lg bg-muted/50 p-3 text-sm">
-            <p className="font-medium mb-1">Tips for Success</p>
-            <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
-              <li>Start with achievable goals</li>
-              <li>Increase gradually over time</li>
-              <li>Consistency beats intensity</li>
-            </ul>
           </div>
         </div>
       </CardContent>

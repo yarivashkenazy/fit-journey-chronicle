@@ -3,44 +3,17 @@
   publish = "dist"
   functions = "netlify/functions"
 
-# Handle API routes - this must come BEFORE the SPA fallback
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/workouts/:splat"
+  from = "/api/workouts/*"
+  to = "/.netlify/functions/workouts"
   status = 200
   force = true
-
-# Handle SPA routing - this must come AFTER the API routes
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Handle API responses
-[[headers]]
-  for = "/.netlify/functions/workouts/*"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Content-Type = "application/json"
-
-# Handle service worker
-[[headers]]
-  for = "/sw.js"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-    Content-Type = "application/javascript"
-    Service-Worker-Allowed = "/"
 
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
     Cache-Control = "no-cache"
     Content-Type = "application/javascript"
-
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*"
@@ -50,7 +23,6 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 [build.environment]
-  VITE_API_URL = "/api" 
+  VITE_API_URL = "/.netlify/functions" 

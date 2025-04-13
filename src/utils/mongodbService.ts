@@ -1,12 +1,17 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Workout, WorkoutLog } from '@/types/workout';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please add your MongoDB URI to .env.local');
+// Get MongoDB URI from environment variables
+const uri = process.env.MONGODB_URI || process.env.VITE_MONGODB_URI;
+
+if (!uri) {
+  throw new Error('MongoDB URI is not defined. Please add it to your environment variables.');
 }
 
-const uri = process.env.MONGODB_URI;
-const options = {};
+const options = {
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
@@ -30,64 +35,109 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 export async function getDatabase(): Promise<Db> {
-  const client = await clientPromise;
-  return client.db();
+  try {
+    const client = await clientPromise;
+    return client.db();
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    throw error;
+  }
 }
 
 export async function getCollection<T>(collectionName: string): Promise<Collection<T>> {
-  const db = await getDatabase();
-  return db.collection<T>(collectionName);
+  try {
+    const db = await getDatabase();
+    return db.collection<T>(collectionName);
+  } catch (error) {
+    console.error(`Error getting collection ${collectionName}:`, error);
+    throw error;
+  }
 }
 
 // Default Workouts
 export const getDefaultWorkouts = async (): Promise<Workout[]> => {
-  const collection = await getCollection<Workout>('defaultWorkouts');
-  return collection.find({}).toArray();
+  try {
+    const collection = await getCollection<Workout>('defaultWorkouts');
+    return collection.find({}).toArray();
+  } catch (error) {
+    console.error('Error getting default workouts:', error);
+    throw error;
+  }
 };
 
 export const saveDefaultWorkout = async (workout: Workout): Promise<void> => {
-  const collection = await getCollection<Workout>('defaultWorkouts');
-  await collection.updateOne(
-    { id: workout.id },
-    { $set: workout },
-    { upsert: true }
-  );
+  try {
+    const collection = await getCollection<Workout>('defaultWorkouts');
+    await collection.updateOne(
+      { id: workout.id },
+      { $set: workout },
+      { upsert: true }
+    );
+  } catch (error) {
+    console.error('Error saving default workout:', error);
+    throw error;
+  }
 };
 
 // Custom Workouts
 export const getCustomWorkouts = async (): Promise<Workout[]> => {
-  const collection = await getCollection<Workout>('customWorkouts');
-  return collection.find({}).toArray();
+  try {
+    const collection = await getCollection<Workout>('customWorkouts');
+    return collection.find({}).toArray();
+  } catch (error) {
+    console.error('Error getting custom workouts:', error);
+    throw error;
+  }
 };
 
 export const saveCustomWorkout = async (workout: Workout): Promise<void> => {
-  const collection = await getCollection<Workout>('customWorkouts');
-  await collection.updateOne(
-    { id: workout.id },
-    { $set: workout },
-    { upsert: true }
-  );
+  try {
+    const collection = await getCollection<Workout>('customWorkouts');
+    await collection.updateOne(
+      { id: workout.id },
+      { $set: workout },
+      { upsert: true }
+    );
+  } catch (error) {
+    console.error('Error saving custom workout:', error);
+    throw error;
+  }
 };
 
 // Workout Logs
 export const getWorkoutLogs = async (): Promise<WorkoutLog[]> => {
-  const collection = await getCollection<WorkoutLog>('workoutLogs');
-  return collection.find({}).toArray();
+  try {
+    const collection = await getCollection<WorkoutLog>('workoutLogs');
+    return collection.find({}).toArray();
+  } catch (error) {
+    console.error('Error getting workout logs:', error);
+    throw error;
+  }
 };
 
 export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
-  const collection = await getCollection<WorkoutLog>('workoutLogs');
-  await collection.insertOne(workoutLog);
+  try {
+    const collection = await getCollection<WorkoutLog>('workoutLogs');
+    await collection.insertOne(workoutLog);
+  } catch (error) {
+    console.error('Error saving workout log:', error);
+    throw error;
+  }
 };
 
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
-  // First check custom workouts
-  const customCollection = await getCollection<Workout>('customWorkouts');
-  const customWorkout = await customCollection.findOne({ id: workoutId });
-  if (customWorkout) return customWorkout;
+  try {
+    // First check custom workouts
+    const customCollection = await getCollection<Workout>('customWorkouts');
+    const customWorkout = await customCollection.findOne({ id: workoutId });
+    if (customWorkout) return customWorkout;
 
-  // Then check default workouts
-  const defaultCollection = await getCollection<Workout>('defaultWorkouts');
-  return defaultCollection.findOne({ id: workoutId });
+    // Then check default workouts
+    const defaultCollection = await getCollection<Workout>('defaultWorkouts');
+    return defaultCollection.findOne({ id: workoutId });
+  } catch (error) {
+    console.error('Error getting workout:', error);
+    throw error;
+  }
 }; 

@@ -65,14 +65,37 @@ const handler: Handler = async (event, context) => {
     } else if (segments[0] === 'default') {
       console.log('Processing default workouts endpoint');
       if (event.httpMethod === 'GET') {
-        console.log('Fetching default workouts');
-        const workouts = await getDefaultWorkouts();
-        console.log('Retrieved default workouts:', workouts);
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify(workouts),
-        };
+        if (segments[1]) {
+          // Handle specific default workout
+          console.log('Fetching specific default workout:', segments[1]);
+          const workout = await getWorkout(segments[1]);
+          console.log('Retrieved workout:', workout);
+          
+          if (!workout) {
+            console.log('Workout not found');
+            return {
+              statusCode: 404,
+              headers,
+              body: JSON.stringify({ error: 'Workout not found' }),
+            };
+          }
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(workout),
+          };
+        } else {
+          // Handle all default workouts
+          console.log('Fetching all default workouts');
+          const workouts = await getDefaultWorkouts();
+          console.log('Retrieved default workouts:', workouts);
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(workouts),
+          };
+        }
       } else if (event.httpMethod === 'POST') {
         console.log('Saving default workout');
         const workout = JSON.parse(event.body || '{}');

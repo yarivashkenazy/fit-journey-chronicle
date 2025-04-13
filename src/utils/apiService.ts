@@ -9,19 +9,22 @@ const handleResponse = async (response: Response) => {
   const contentType = response.headers.get('content-type');
   console.log('Content-Type:', contentType);
   
+  // Clone the response before reading it
+  const responseClone = response.clone();
+  
   if (!response.ok) {
-    const errorText = await response.text();
+    const errorText = await responseClone.text();
     console.error('API Error Response:', errorText);
     throw new Error(errorText || 'An error occurred');
   }
   
   try {
-    const data = await response.json();
+    const data = await responseClone.json();
     console.log('API Response Data:', data);
     return data;
   } catch (error) {
     console.error('Error parsing JSON:', error);
-    const text = await response.text();
+    const text = await responseClone.text();
     console.error('Raw Response:', text);
     throw new Error('Invalid JSON response');
   }

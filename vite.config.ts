@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -12,6 +11,9 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      },
       includeAssets: [
         'favicon.ico', 
         'logo192.png', 
@@ -19,18 +21,18 @@ export default defineConfig(({ mode }) => ({
         'manifest.json'
       ],
       manifest: {
-        name: 'Fitness Tracker',
-        short_name: 'Fitness',
-        description: 'Track your workout progress',
-        theme_color: '#3B82F6',
+        name: 'Fit Journey Chronicle',
+        short_name: 'Fit Journey',
+        description: 'Track your fitness journey with style',
+        theme_color: '#ffffff',
         icons: [
           {
-            src: 'logo192.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'logo512.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }
@@ -78,5 +80,6 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 8080
-  }
+  },
+  base: '/fit-journey-chronicle/',
 }))

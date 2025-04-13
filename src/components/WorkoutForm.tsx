@@ -110,7 +110,7 @@ const WorkoutForm = () => {
   }
   
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6 overflow-x-hidden max-w-full">
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/")} className="px-0 hover:bg-transparent">
           <ArrowLeft className="mr-2 h-4 w-4" />

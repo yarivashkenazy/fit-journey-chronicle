@@ -16,8 +16,8 @@ const Layout = ({ children }: LayoutProps) => {
   const hideNavbar = location.pathname.includes('/workout/');
   
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className={`flex-1 ${hideNavbar ? 'pb-0' : 'pb-16'}`}>{children}</main>
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
+      <main className={`flex-1 ${hideNavbar ? 'pb-0' : 'pb-16'} overflow-x-hidden`}>{children}</main>
       
       {!hideNavbar && (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 z-20 shadow-lg">

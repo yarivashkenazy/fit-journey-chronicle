@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkoutStats } from "@/types/workout";
@@ -14,7 +13,6 @@ interface ProgressChartProps {
 const ProgressChart = ({ stats }: ProgressChartProps) => {
   const isMobile = useIsMobile();
   
-  // Check if there's any exercise progress data
   if (!stats.exerciseProgress || stats.exerciseProgress.length === 0) {
     return (
       <Card className="h-full">
@@ -28,17 +26,14 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     );
   }
   
-  // Find Bench Press exercise index if it exists
   const benchPressIndex = stats.exerciseProgress.findIndex(ex => ex.exerciseName === "Bench Press");
   
-  // Set default selected exercise to Bench Press if available, otherwise use first exercise
   const defaultExerciseId = benchPressIndex !== -1 
     ? stats.exerciseProgress[benchPressIndex].exerciseId 
     : stats.exerciseProgress[0]?.exerciseId;
   
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | undefined>(defaultExerciseId);
   
-  // Update selected exercise when stats change
   useEffect(() => {
     const benchPressIndex = stats.exerciseProgress.findIndex(ex => ex.exerciseName === "Bench Press");
     const defaultExerciseId = benchPressIndex !== -1 
@@ -48,7 +43,6 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     setSelectedExerciseId(defaultExerciseId);
   }, [stats]);
 
-  // Find the exercise data based on selection
   const exerciseData = selectedExerciseId
     ? stats.exerciseProgress.find(ex => ex.exerciseId === selectedExerciseId)
     : stats.exerciseProgress[0];
@@ -71,20 +65,16 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
     );
   }
 
-  // Get the last 28 days of data (or all if less than 28 days)
   const sortedData = [...exerciseData.data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
   
   const last28Days = sortedData.slice(-28);
 
-  // Calculate 7-day moving average
   const chartData = last28Days.map((point, index, array) => {
-    // Get previous 7 days (or less if at the beginning)
     const startIndex = Math.max(0, index - 6);
     const windowPoints = array.slice(startIndex, index + 1);
     
-    // Calculate average
     const sum = windowPoints.reduce((acc, p) => acc + p.maxWeight, 0);
     const average = windowPoints.length > 0 ? sum / windowPoints.length : 0;
     
@@ -94,12 +84,12 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
         day: 'numeric' 
       }),
       weight: point.maxWeight,
-      average: Number(average.toFixed(1)) // Round to 1 decimal place
+      average: Number(average.toFixed(1))
     };
   });
 
   return (
-    <Card className="h-full">
+    <Card className="h-full overflow-hidden">
       <CardHeader className={`flex ${isMobile ? 'flex-col gap-2' : 'flex-row'} items-center justify-between pb-2`}>
         <CardTitle className="text-lg">Weight Progress (28-day window)</CardTitle>
         <ExerciseSelector 
@@ -108,8 +98,8 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
           onSelectExercise={setSelectedExerciseId} 
         />
       </CardHeader>
-      <CardContent className="h-[calc(100%-60px)]">
-        <div className="h-[calc(100%-40px)]">
+      <CardContent className="h-[calc(100%-60px)] overflow-hidden">
+        <div className="h-[calc(100%-40px)] overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
@@ -162,7 +152,6 @@ const ProgressChart = ({ stats }: ProgressChartProps) => {
           </ResponsiveContainer>
         </div>
         
-        {/* Legend/Index for colors */}
         <div className="flex items-center justify-center mt-3 gap-4 flex-wrap">
           <div className="flex items-center">
             <span className="inline-block w-3 h-3 bg-fitness-primary mr-2 rounded-sm"></span>

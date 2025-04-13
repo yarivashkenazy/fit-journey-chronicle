@@ -61,7 +61,7 @@ const Dashboard = () => {
   const workouts = getWorkouts();
   
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6 overflow-x-hidden max-w-full">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Fitness Tracker</h1>
         <div className="flex gap-4 items-center">
@@ -99,8 +99,8 @@ const Dashboard = () => {
         )}
       </div>
       
-      {/* Progress Charts - Now all 3 components are in the same row with the same height */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Progress Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         <div className="col-span-1 h-[420px]">
           <ProgressChart stats={stats} />
         </div>

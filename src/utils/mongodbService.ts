@@ -126,30 +126,30 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<void> => {
 };
 
 // Get a specific workout (checks both default and custom)
-export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
-  try {
-    console.log('Looking for workout with ID:', workoutId);
-    
-    // First check custom workouts
-    const customCollection = await getCollection<Workout>('customWorkouts');
-    const customWorkout = await customCollection.findOne({ id: workoutId });
-    if (customWorkout) {
-      console.log('Found workout in custom workouts:', customWorkout);
-      return customWorkout;
-    }
-
-    // Then check default workouts
-    const defaultCollection = await getCollection<Workout>('defaultWorkouts');
-    const defaultWorkout = await defaultCollection.findOne({ id: workoutId });
-    if (defaultWorkout) {
-      console.log('Found workout in default workouts:', defaultWorkout);
-      return defaultWorkout;
-    }
-
-    console.log('Workout not found in either collection');
-    return null;
-  } catch (error) {
-    console.error('Error getting workout:', error);
-    throw error;
+export const getWorkout = async (id: string): Promise<Workout | null> => {
+  console.log('Searching for workout with ID:', id);
+  const db = await getDatabase();
+  
+  // First check custom workouts
+  console.log('Checking custom workouts collection');
+  const customWorkout = await db.collection<Workout>('customWorkouts').findOne({ id });
+  console.log('Custom workout result:', customWorkout);
+  
+  if (customWorkout) {
+    console.log('Found workout in custom workouts');
+    return customWorkout;
   }
+  
+  // Then check default workouts
+  console.log('Checking default workouts collection');
+  const defaultWorkout = await db.collection<Workout>('defaultWorkouts').findOne({ id });
+  console.log('Default workout result:', defaultWorkout);
+  
+  if (defaultWorkout) {
+    console.log('Found workout in default workouts');
+    return defaultWorkout;
+  }
+  
+  console.log('Workout not found in either collection');
+  return null;
 }; 

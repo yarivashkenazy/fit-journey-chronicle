@@ -103,6 +103,15 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog
   return handleResponse<WorkoutLog>(response);
 };
 
+export const deleteWorkoutLog = async (logId: string): Promise<void> => {
+  console.log('Deleting workout log:', logId);
+  const response = await fetch(`${API_URL}/workouts/logs/${logId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  await handleResponse<void>(response);
+};
+
 // Get a specific workout (checks both default and custom)
 export const getWorkout = async (workoutId: string): Promise<Workout | null> => {
   console.log('Fetching workout:', `${API_URL}/workouts/${workoutId}`);

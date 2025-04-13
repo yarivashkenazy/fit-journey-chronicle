@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
 import { WorkoutLog } from "@/types/workout";
-import { getWorkoutLogs, deleteWorkoutLog } from "@/utils/storageService";
+import { getWorkoutLogs, deleteWorkoutLog } from "@/utils/apiService";
 import { useToast } from "@/hooks/use-toast";
 import { HistoryHeader } from "@/components/history/HistoryHeader";
 import { EmptyState } from "@/components/history/EmptyState";
@@ -18,27 +17,36 @@ const History = () => {
   const [multiDeleteConfirmOpen, setMultiDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
   
-  const loadWorkoutLogs = () => {
-    const logs = getWorkoutLogs();
-    setWorkoutLogs(logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    
-    const grouped = logs.reduce((acc, log) => {
-      const date = new Date(log.date);
-      const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+  const loadWorkoutLogs = async () => {
+    try {
+      const logs = await getWorkoutLogs();
+      setWorkoutLogs(logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       
-      if (!acc[monthYear]) {
-        acc[monthYear] = [];
-      }
+      const grouped = logs.reduce((acc, log) => {
+        const date = new Date(log.date);
+        const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+        
+        if (!acc[monthYear]) {
+          acc[monthYear] = [];
+        }
+        
+        acc[monthYear].push(log);
+        return acc;
+      }, {} as Record<string, WorkoutLog[]>);
       
-      acc[monthYear].push(log);
-      return acc;
-    }, {} as Record<string, WorkoutLog[]>);
-    
-    Object.keys(grouped).forEach(month => {
-      grouped[month].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    });
-    
-    setGroupedLogs(grouped);
+      Object.keys(grouped).forEach(month => {
+        grouped[month].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      });
+      
+      setGroupedLogs(grouped);
+    } catch (error) {
+      console.error('Error loading workout logs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load workout history",
+        variant: "destructive"
+      });
+    }
   };
 
   useEffect(() => {
@@ -59,16 +67,25 @@ const History = () => {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (logToDelete) {
-      deleteWorkoutLog(logToDelete);
-      loadWorkoutLogs();
-      setDeleteConfirmOpen(false);
-      setLogToDelete(null);
-      toast({
-        title: "Workout deleted",
-        description: "Your workout has been removed from history",
-      });
+      try {
+        await deleteWorkoutLog(logToDelete);
+        await loadWorkoutLogs();
+        setDeleteConfirmOpen(false);
+        setLogToDelete(null);
+        toast({
+          title: "Workout deleted",
+          description: "Your workout has been removed from history",
+        });
+      } catch (error) {
+        console.error('Error deleting workout log:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete workout",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -96,19 +113,28 @@ const History = () => {
     setSelectedLogs([]);
   };
 
-  const confirmMultiDelete = () => {
+  const confirmMultiDelete = async () => {
     if (selectedLogs.length > 0) {
-      selectedLogs.forEach(logId => {
-        deleteWorkoutLog(logId);
-      });
-      loadWorkoutLogs();
-      setSelectedLogs([]);
-      setSelectMode(false);
-      setMultiDeleteConfirmOpen(false);
-      toast({
-        title: `${selectedLogs.length} workouts deleted`,
-        description: "The selected workouts have been removed from history",
-      });
+      try {
+        for (const logId of selectedLogs) {
+          await deleteWorkoutLog(logId);
+        }
+        await loadWorkoutLogs();
+        setSelectedLogs([]);
+        setSelectMode(false);
+        setMultiDeleteConfirmOpen(false);
+        toast({
+          title: `${selectedLogs.length} workouts deleted`,
+          description: "The selected workouts have been removed from history",
+        });
+      } catch (error) {
+        console.error('Error deleting multiple workout logs:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete workouts",
+          variant: "destructive"
+        });
+      }
     }
   };
   

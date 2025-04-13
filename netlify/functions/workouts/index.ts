@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import { getDefaultWorkouts, saveDefaultWorkout, getCustomWorkouts, saveCustomWorkout, getWorkoutLogs, saveWorkoutLog, getWorkout } from '../../../src/utils/mongodbService';
+import { getDefaultWorkouts, saveDefaultWorkout, getCustomWorkouts, saveCustomWorkout, getWorkoutLogs, saveWorkoutLog, getWorkout, deleteWorkoutLog } from '../../../src/utils/mongodbService';
 
 const handler: Handler = async (event, context) => {
   console.log('=== Function Invocation Start ===');
@@ -68,6 +68,17 @@ const handler: Handler = async (event, context) => {
           body: JSON.stringify({ 
             success: true,
             data: savedLog
+          }),
+        };
+      } else if (event.httpMethod === 'DELETE' && segments[1]) {
+        console.log('Deleting workout log:', segments[1]);
+        await deleteWorkoutLog(segments[1]);
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ 
+            success: true,
+            message: 'Workout log deleted successfully'
           }),
         };
       }

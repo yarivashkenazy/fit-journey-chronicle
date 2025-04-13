@@ -184,4 +184,21 @@ export const saveWorkoutLog = async (workoutLog: WorkoutLog): Promise<WorkoutLog
     console.error('Error saving workout log:', error);
     throw error;
   }
+};
+
+export const deleteWorkoutLog = async (logId: string): Promise<void> => {
+  try {
+    console.log('Deleting workout log from MongoDB:', logId);
+    const collection = await getCollection<WorkoutLog>('workout-logs');
+    
+    const result = await collection.deleteOne({ id: logId });
+    console.log('Delete result:', result);
+    
+    if (result.deletedCount === 0) {
+      throw new Error('Workout log not found');
+    }
+  } catch (error) {
+    console.error('Error deleting workout log:', error);
+    throw error;
+  }
 }; 

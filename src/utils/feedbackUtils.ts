@@ -64,10 +64,26 @@ export class SoundEffects {
 
 // Predefined sound effects
 export const SoundEffect = {
-  complete: () => SoundEffects.play('complete'),
-  unlock: () => SoundEffects.play('unlock'),
-  error: () => SoundEffects.play('error'),
-  click: () => SoundEffects.play('click')
+  complete: () => {
+    const audio = new Audio('/sounds/complete.mp3');
+    audio.play();
+  },
+  unlock: () => {
+    const audio = new Audio('/sounds/unlock.mp3');
+    audio.play();
+  },
+  error: () => {
+    const audio = new Audio('/sounds/error.mp3');
+    audio.play();
+  },
+  click: () => {
+    const audio = new Audio('/sounds/click.mp3');
+    audio.play();
+  },
+  reset: () => {
+    const audio = new Audio('/sounds/reset.mp3');
+    audio.play();
+  }
 };
 
 // Initialize sound effects

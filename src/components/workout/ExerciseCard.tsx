@@ -14,6 +14,7 @@ import RestTimer from "@/components/RestTimer";
 import { Exercise, ExerciseLog, Set } from "@/types/workout";
 import { motion, AnimatePresence } from "framer-motion";
 import { HapticPattern, SoundEffect } from "@/utils/feedbackUtils";
+import { useExerciseActions } from '@/hooks/workout/useExerciseActions';
 
 interface ExerciseCardProps {
   exerciseLog: ExerciseLog;
@@ -246,6 +247,34 @@ const ExerciseCard = ({
   const dragClass = isBeingDragged ? "opacity-50" : "";
   const dropTargetClass = isDragging && !isBeingDragged ? "border-dashed border-2 border-fitness-primary/50" : "";
 
+  const { exercises, isLoading, error, handleSetChange, handleSetClick } = useExerciseActions([exercise]);
+
+  if (isLoading) {
+    return (
+      <div className="glass-card p-4 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-8 bg-gray-200 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="glass-card p-4">
+        <div className="text-red-500 mb-2">{error}</div>
+        <div className="text-sm text-gray-500">
+          Your workout data will be saved locally until the server is available.
+        </div>
+      </div>
+    );
+  }
+
+  const currentExercise = exercises[0];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -334,9 +363,31 @@ const ExerciseCard = ({
               <div className="col-span-3"></div>
             </div>
             
-            {exerciseLog.sets.map((set, setIndex) => (
-              <SetRow
+            {currentExercise.sets.map((set, setIndex) => (
+              <div
                 key={set.id}
+                className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg ${
+                  set.completed 
+                    ? 'bg-green-50/10 border-green-500' 
+                    : activeRestTimers[`${exerciseIndex}-${setIndex}`]
+                      ? 'bg-orange-50/10 border-orange-500'
+                      : ''
+                }`}
+              >
+                <div className="col-span-4">
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={set.weight || ''}
+                      onChange={(e) => handleSetChange(exerciseIndex, setIndex, 'weight', e.target.value)}
+                      className={`modern-input pl-2 pr-8 ${
+                        set.completed 
+                          ? 'border-green-500 bg-green-50/10' 
+                          : activeRestTimers[`${exerciseIndex}-${setIndex}`]
+                            ? 'border-orange-500 bg-orange-50/10'
+                            : ''
+                      }`}
+                    />
                 set={set}
                 setIndex={setIndex}
                 exerciseIndex={exerciseIndex}

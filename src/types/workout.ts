@@ -1,4 +1,4 @@
-export type ExerciseType = 'compound' | 'accessory' | 'finishing' | 'unilateral' | 'superset';
+export type ExerciseType = 'strength' | 'cardio' | 'flexibility' | 'balance';
 
 export interface Exercise {
   id: string;
@@ -10,14 +10,15 @@ export interface Exercise {
   defaultRestPeriod: number;
   notes?: string;
   formCues?: string[];
+  sets: Set[];
 }
 
 export interface Set {
   id: string;
-  weight: number;
-  reps: number;
+  weight: number | null;
+  reps: number | null;
   completed: boolean;
-  timerActive?: boolean;
+  timerActive: boolean;
   notes?: string;
 }
 
@@ -33,8 +34,9 @@ export interface Workout {
   id: string;
   name: string;
   description?: string;
+  category: string;
+  date: string;
   exercises: Exercise[];
-  category: WorkoutCategory;
 }
 
 export type WorkoutCategory = 'push' | 'pull' | 'legs' | 'full' | 'cardio' | 'custom';
@@ -71,4 +73,23 @@ export interface WorkoutStats {
       maxWeight: number;
     }[];
   }[];
+}
+
+// API-specific types
+export interface ApiSet {
+  weight: number | null;
+  reps: number | null;
+  completed: boolean;
+  timerActive: boolean;
+}
+
+export interface ApiExercise {
+  name: string;
+  sets: ApiSet[];
+}
+
+export interface ApiWorkout {
+  _id: string;
+  date: string;
+  exercises: ApiExercise[];
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,10 +42,13 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
   };
 
   const handleFrequencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse the input value to a number and ensure it's within the valid range (1-7)
-    const value = parseInt(e.target.value) || 1;
-    const validValue = Math.max(1, Math.min(7, value));
-    setTargetFrequency(validValue);
+    const value = e.target.value;
+    // Only update if the value is a valid number or empty string
+    if (value === '' || /^\d+$/.test(value)) {
+      const numValue = value === '' ? 1 : parseInt(value);
+      const validValue = Math.max(1, Math.min(7, numValue));
+      setTargetFrequency(validValue);
+    }
   };
 
   return (

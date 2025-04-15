@@ -15,6 +15,7 @@ interface GoalSettingProps {
 const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
   // Set a default value of 3 if no active goal exists
   const [targetFrequency, setTargetFrequency] = useState<number>(3);
+  const [inputValue, setInputValue] = useState<string>(targetFrequency.toString());
   
   useEffect(() => {
     // Get active goal on component mount
@@ -22,6 +23,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
     if (activeGoal) {
       setTargetFrequency(activeGoal.frequency);
     }
+    setInputValue(targetFrequency.toString());
   }, []);
 
   const handleSaveGoal = () => {
@@ -43,11 +45,16 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
 
   const handleFrequencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only update if the value is a valid number or empty string
-    if (value === '' || /^\d+$/.test(value)) {
-      const numValue = value === '' ? 1 : parseInt(value);
-      const validValue = Math.max(1, Math.min(7, numValue));
-      setTargetFrequency(validValue);
+    setInputValue(value);
+    
+    if (value === '') {
+      setTargetFrequency(1);
+    } else {
+      const numValue = parseInt(value);
+      if (!isNaN(numValue)) {
+        const validValue = Math.max(1, Math.min(7, numValue));
+        setTargetFrequency(validValue);
+      }
     }
   };
 
@@ -67,7 +74,7 @@ const GoalSetting = ({ onGoalUpdate }: GoalSettingProps) => {
               type="number"
               min={1}
               max={7}
-              value={targetFrequency}
+              value={inputValue}
               onChange={handleFrequencyChange}
               className="h-8"
             />
